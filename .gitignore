@@ -1,4 +1,18 @@
 # Ignore everything in this directory
-*
 # Except this file
 !.gitignore
+docs/_build
+static-files
+__pycache__
+db.sqlite3
+build
+dist
+htmlcov
+venv
+.coverage
+.venv-distro
+.venv?
+.venv
+.eggs
+*.egg-info
+*.py[co]
