@@ -14,8 +14,9 @@ default: install
 test: install
 	@echo "\nRunning the UnitTestCases with coverage enabled"
 	@echo "--------------------------------------------------"
-	@source env.sh && $(PY_BINARY) \
-		$(PROJECT_ROOT)/tests/server/manage.py test
+	@source env.sh && \
+		cd $(PROJECT_ROOT)/tests/server && \
+		$(PY_BINARY) manage.py test
 
 install: $(VENV_DIR)
 	@echo "\nInstalling all required packages"
