@@ -1,0 +1,1382 @@
+[
+{
+  "model": "machine.operatingsystem",
+  "pk": 1,
+  "fields": {
+    "name": "os-name-1",
+    "arch": "arch-name-1"
+  }
+},
+{
+  "model": "machine.operatingsystem",
+  "pk": 2,
+  "fields": {
+    "name": "os-name-2",
+    "arch": "arch-name-2"
+  }
+},
+{
+  "model": "machine.operatingsystem",
+  "pk": 3,
+  "fields": {
+    "name": "os-name-3",
+    "arch": "arch-name-3"
+  }
+},
+{
+  "model": "machine.operatingsystem",
+  "pk": 4,
+  "fields": {
+    "name": "os-name-4",
+    "arch": "arch-name-4"
+  }
+},
+{
+  "model": "machine.operatingsystem",
+  "pk": 5,
+  "fields": {
+    "name": "os-name-5",
+    "arch": "arch-name-5"
+  }
+},
+{
+  "model": "machine.operatingsystem",
+  "pk": 6,
+  "fields": {
+    "name": "os-name-6",
+    "arch": "arch-name-6"
+  }
+},
+{
+  "model": "machine.operatingsystem",
+  "pk": 7,
+  "fields": {
+    "name": "os-name-7",
+    "arch": "arch-name-7"
+  }
+},
+{
+  "model": "machine.operatingsystem",
+  "pk": 8,
+  "fields": {
+    "name": "os-name-8",
+    "arch": "arch-name-8"
+  }
+},
+{
+  "model": "machine.operatingsystem",
+  "pk": 9,
+  "fields": {
+    "name": "os-name-9",
+    "arch": "arch-name-9"
+  }
+},
+{
+  "model": "machine.operatingsystem",
+  "pk": 10,
+  "fields": {
+    "name": "os-name-10",
+    "arch": "arch-name-10"
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 1,
+  "fields": {
+    "ip": "10.0.0.1",
+    "name": "machine-name-1",
+    "cpu_count": 2,
+    "memory": 1,
+    "created_at": "2022-12-08T09:37:55.919Z",
+    "powered_on": false,
+    "os": 1
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 2,
+  "fields": {
+    "ip": "10.0.0.2",
+    "name": "machine-name-2",
+    "cpu_count": 4,
+    "memory": 4,
+    "created_at": "2022-12-09T09:37:55.922Z",
+    "powered_on": true,
+    "os": 2
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 3,
+  "fields": {
+    "ip": "10.0.0.3",
+    "name": "machine-name-3",
+    "cpu_count": 6,
+    "memory": 9,
+    "created_at": "2022-12-10T09:37:55.924Z",
+    "powered_on": false,
+    "os": 3
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 4,
+  "fields": {
+    "ip": "10.0.0.4",
+    "name": "machine-name-4",
+    "cpu_count": 8,
+    "memory": 16,
+    "created_at": "2022-12-11T09:37:55.925Z",
+    "powered_on": true,
+    "os": 4
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 5,
+  "fields": {
+    "ip": "10.0.0.5",
+    "name": "machine-name-5",
+    "cpu_count": 10,
+    "memory": 25,
+    "created_at": "2022-12-12T09:37:55.926Z",
+    "powered_on": false,
+    "os": 5
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 6,
+  "fields": {
+    "ip": "10.0.0.6",
+    "name": "machine-name-6",
+    "cpu_count": 12,
+    "memory": 36,
+    "created_at": "2022-12-13T09:37:55.927Z",
+    "powered_on": true,
+    "os": 6
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 7,
+  "fields": {
+    "ip": "10.0.0.7",
+    "name": "machine-name-7",
+    "cpu_count": 14,
+    "memory": 49,
+    "created_at": "2022-12-14T09:37:55.928Z",
+    "powered_on": false,
+    "os": 7
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 8,
+  "fields": {
+    "ip": "10.0.0.8",
+    "name": "machine-name-8",
+    "cpu_count": 0,
+    "memory": 64,
+    "created_at": "2022-12-15T09:37:55.930Z",
+    "powered_on": true,
+    "os": 8
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 9,
+  "fields": {
+    "ip": "10.0.0.9",
+    "name": "machine-name-9",
+    "cpu_count": 2,
+    "memory": 81,
+    "created_at": "2022-12-16T09:37:55.931Z",
+    "powered_on": false,
+    "os": 9
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 10,
+  "fields": {
+    "ip": "10.0.0.10",
+    "name": "machine-name-10",
+    "cpu_count": 4,
+    "memory": 100,
+    "created_at": "2022-12-17T09:37:55.932Z",
+    "powered_on": true,
+    "os": 10
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 11,
+  "fields": {
+    "ip": "10.0.0.11",
+    "name": "machine-name-11",
+    "cpu_count": 6,
+    "memory": 121,
+    "created_at": "2022-12-18T09:37:55.933Z",
+    "powered_on": false,
+    "os": 1
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 12,
+  "fields": {
+    "ip": "10.0.0.12",
+    "name": "machine-name-12",
+    "cpu_count": 8,
+    "memory": 144,
+    "created_at": "2022-12-19T09:37:55.935Z",
+    "powered_on": true,
+    "os": 2
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 13,
+  "fields": {
+    "ip": "10.0.0.13",
+    "name": "machine-name-13",
+    "cpu_count": 10,
+    "memory": 169,
+    "created_at": "2022-12-20T09:37:55.936Z",
+    "powered_on": false,
+    "os": 3
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 14,
+  "fields": {
+    "ip": "10.0.0.14",
+    "name": "machine-name-14",
+    "cpu_count": 12,
+    "memory": 196,
+    "created_at": "2022-12-21T09:37:55.938Z",
+    "powered_on": true,
+    "os": 4
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 15,
+  "fields": {
+    "ip": "10.0.0.15",
+    "name": "machine-name-15",
+    "cpu_count": 14,
+    "memory": 225,
+    "created_at": "2022-12-22T09:37:55.939Z",
+    "powered_on": false,
+    "os": 5
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 16,
+  "fields": {
+    "ip": "10.0.0.16",
+    "name": "machine-name-16",
+    "cpu_count": 0,
+    "memory": 256,
+    "created_at": "2022-12-23T09:37:55.940Z",
+    "powered_on": true,
+    "os": 6
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 17,
+  "fields": {
+    "ip": "10.0.0.17",
+    "name": "machine-name-17",
+    "cpu_count": 2,
+    "memory": 289,
+    "created_at": "2022-12-24T09:37:55.942Z",
+    "powered_on": false,
+    "os": 7
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 18,
+  "fields": {
+    "ip": "10.0.0.18",
+    "name": "machine-name-18",
+    "cpu_count": 4,
+    "memory": 324,
+    "created_at": "2022-12-25T09:37:55.943Z",
+    "powered_on": true,
+    "os": 8
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 19,
+  "fields": {
+    "ip": "10.0.0.19",
+    "name": "machine-name-19",
+    "cpu_count": 6,
+    "memory": 361,
+    "created_at": "2022-12-26T09:37:55.944Z",
+    "powered_on": false,
+    "os": 9
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 20,
+  "fields": {
+    "ip": "10.0.0.20",
+    "name": "machine-name-20",
+    "cpu_count": 8,
+    "memory": 400,
+    "created_at": "2022-12-27T09:37:55.945Z",
+    "powered_on": true,
+    "os": 10
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 21,
+  "fields": {
+    "ip": "10.0.0.21",
+    "name": "machine-name-21",
+    "cpu_count": 10,
+    "memory": 441,
+    "created_at": "2022-12-28T09:37:55.947Z",
+    "powered_on": false,
+    "os": 1
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 22,
+  "fields": {
+    "ip": "10.0.0.22",
+    "name": "machine-name-22",
+    "cpu_count": 12,
+    "memory": 484,
+    "created_at": "2022-12-29T09:37:55.948Z",
+    "powered_on": true,
+    "os": 2
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 23,
+  "fields": {
+    "ip": "10.0.0.23",
+    "name": "machine-name-23",
+    "cpu_count": 14,
+    "memory": 529,
+    "created_at": "2022-12-30T09:37:55.950Z",
+    "powered_on": false,
+    "os": 3
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 24,
+  "fields": {
+    "ip": "10.0.0.24",
+    "name": "machine-name-24",
+    "cpu_count": 0,
+    "memory": 576,
+    "created_at": "2022-12-31T09:37:55.951Z",
+    "powered_on": true,
+    "os": 4
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 25,
+  "fields": {
+    "ip": "10.0.0.25",
+    "name": "machine-name-25",
+    "cpu_count": 2,
+    "memory": 625,
+    "created_at": "2023-01-01T09:37:55.953Z",
+    "powered_on": false,
+    "os": 5
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 26,
+  "fields": {
+    "ip": "10.0.0.26",
+    "name": "machine-name-26",
+    "cpu_count": 4,
+    "memory": 676,
+    "created_at": "2023-01-02T09:37:55.954Z",
+    "powered_on": true,
+    "os": 6
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 27,
+  "fields": {
+    "ip": "10.0.0.27",
+    "name": "machine-name-27",
+    "cpu_count": 6,
+    "memory": 729,
+    "created_at": "2023-01-03T09:37:55.955Z",
+    "powered_on": false,
+    "os": 7
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 28,
+  "fields": {
+    "ip": "10.0.0.28",
+    "name": "machine-name-28",
+    "cpu_count": 8,
+    "memory": 784,
+    "created_at": "2023-01-04T09:37:55.957Z",
+    "powered_on": true,
+    "os": 8
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 29,
+  "fields": {
+    "ip": "10.0.0.29",
+    "name": "machine-name-29",
+    "cpu_count": 10,
+    "memory": 841,
+    "created_at": "2023-01-05T09:37:55.958Z",
+    "powered_on": false,
+    "os": 9
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 30,
+  "fields": {
+    "ip": "10.0.0.30",
+    "name": "machine-name-30",
+    "cpu_count": 12,
+    "memory": 900,
+    "created_at": "2023-01-06T09:37:55.960Z",
+    "powered_on": true,
+    "os": 10
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 31,
+  "fields": {
+    "ip": "10.0.0.31",
+    "name": "machine-name-31",
+    "cpu_count": 14,
+    "memory": 961,
+    "created_at": "2023-01-07T09:37:55.961Z",
+    "powered_on": false,
+    "os": 1
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 32,
+  "fields": {
+    "ip": "10.0.0.32",
+    "name": "machine-name-32",
+    "cpu_count": 0,
+    "memory": 1024,
+    "created_at": "2023-01-08T09:37:55.962Z",
+    "powered_on": true,
+    "os": 2
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 33,
+  "fields": {
+    "ip": "10.0.0.33",
+    "name": "machine-name-33",
+    "cpu_count": 2,
+    "memory": 1089,
+    "created_at": "2023-01-09T09:37:55.964Z",
+    "powered_on": false,
+    "os": 3
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 34,
+  "fields": {
+    "ip": "10.0.0.34",
+    "name": "machine-name-34",
+    "cpu_count": 4,
+    "memory": 1156,
+    "created_at": "2023-01-10T09:37:55.965Z",
+    "powered_on": true,
+    "os": 4
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 35,
+  "fields": {
+    "ip": "10.0.0.35",
+    "name": "machine-name-35",
+    "cpu_count": 6,
+    "memory": 1225,
+    "created_at": "2023-01-11T09:37:55.967Z",
+    "powered_on": false,
+    "os": 5
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 36,
+  "fields": {
+    "ip": "10.0.0.36",
+    "name": "machine-name-36",
+    "cpu_count": 8,
+    "memory": 1296,
+    "created_at": "2023-01-12T09:37:55.968Z",
+    "powered_on": true,
+    "os": 6
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 37,
+  "fields": {
+    "ip": "10.0.0.37",
+    "name": "machine-name-37",
+    "cpu_count": 10,
+    "memory": 1369,
+    "created_at": "2023-01-13T09:37:55.970Z",
+    "powered_on": false,
+    "os": 7
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 38,
+  "fields": {
+    "ip": "10.0.0.38",
+    "name": "machine-name-38",
+    "cpu_count": 12,
+    "memory": 1444,
+    "created_at": "2023-01-14T09:37:55.971Z",
+    "powered_on": true,
+    "os": 8
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 39,
+  "fields": {
+    "ip": "10.0.0.39",
+    "name": "machine-name-39",
+    "cpu_count": 14,
+    "memory": 1521,
+    "created_at": "2023-01-15T09:37:55.972Z",
+    "powered_on": false,
+    "os": 9
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 40,
+  "fields": {
+    "ip": "10.0.0.40",
+    "name": "machine-name-40",
+    "cpu_count": 0,
+    "memory": 1600,
+    "created_at": "2023-01-16T09:37:55.974Z",
+    "powered_on": true,
+    "os": 10
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 41,
+  "fields": {
+    "ip": "10.0.0.41",
+    "name": "machine-name-41",
+    "cpu_count": 2,
+    "memory": 1681,
+    "created_at": "2023-01-17T09:37:55.975Z",
+    "powered_on": false,
+    "os": 1
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 42,
+  "fields": {
+    "ip": "10.0.0.42",
+    "name": "machine-name-42",
+    "cpu_count": 4,
+    "memory": 1764,
+    "created_at": "2023-01-18T09:37:55.977Z",
+    "powered_on": true,
+    "os": 2
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 43,
+  "fields": {
+    "ip": "10.0.0.43",
+    "name": "machine-name-43",
+    "cpu_count": 6,
+    "memory": 1849,
+    "created_at": "2023-01-19T09:37:55.979Z",
+    "powered_on": false,
+    "os": 3
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 44,
+  "fields": {
+    "ip": "10.0.0.44",
+    "name": "machine-name-44",
+    "cpu_count": 8,
+    "memory": 1936,
+    "created_at": "2023-01-20T09:37:55.980Z",
+    "powered_on": true,
+    "os": 4
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 45,
+  "fields": {
+    "ip": "10.0.0.45",
+    "name": "machine-name-45",
+    "cpu_count": 10,
+    "memory": 2025,
+    "created_at": "2023-01-21T09:37:55.982Z",
+    "powered_on": false,
+    "os": 5
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 46,
+  "fields": {
+    "ip": "10.0.0.46",
+    "name": "machine-name-46",
+    "cpu_count": 12,
+    "memory": 2116,
+    "created_at": "2023-01-22T09:37:55.984Z",
+    "powered_on": true,
+    "os": 6
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 47,
+  "fields": {
+    "ip": "10.0.0.47",
+    "name": "machine-name-47",
+    "cpu_count": 14,
+    "memory": 2209,
+    "created_at": "2023-01-23T09:37:55.985Z",
+    "powered_on": false,
+    "os": 7
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 48,
+  "fields": {
+    "ip": "10.0.0.48",
+    "name": "machine-name-48",
+    "cpu_count": 0,
+    "memory": 2304,
+    "created_at": "2023-01-24T09:37:55.987Z",
+    "powered_on": true,
+    "os": 8
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 49,
+  "fields": {
+    "ip": "10.0.0.49",
+    "name": "machine-name-49",
+    "cpu_count": 2,
+    "memory": 2401,
+    "created_at": "2023-01-25T09:37:55.988Z",
+    "powered_on": false,
+    "os": 9
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 50,
+  "fields": {
+    "ip": "10.0.0.50",
+    "name": "machine-name-50",
+    "cpu_count": 4,
+    "memory": 2500,
+    "created_at": "2023-01-26T09:37:55.989Z",
+    "powered_on": true,
+    "os": 10
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 51,
+  "fields": {
+    "ip": "10.0.0.51",
+    "name": "machine-name-51",
+    "cpu_count": 6,
+    "memory": 2601,
+    "created_at": "2023-01-27T09:37:55.991Z",
+    "powered_on": false,
+    "os": 1
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 52,
+  "fields": {
+    "ip": "10.0.0.52",
+    "name": "machine-name-52",
+    "cpu_count": 8,
+    "memory": 2704,
+    "created_at": "2023-01-28T09:37:55.992Z",
+    "powered_on": true,
+    "os": 2
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 53,
+  "fields": {
+    "ip": "10.0.0.53",
+    "name": "machine-name-53",
+    "cpu_count": 10,
+    "memory": 2809,
+    "created_at": "2023-01-29T09:37:55.993Z",
+    "powered_on": false,
+    "os": 3
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 54,
+  "fields": {
+    "ip": "10.0.0.54",
+    "name": "machine-name-54",
+    "cpu_count": 12,
+    "memory": 2916,
+    "created_at": "2023-01-30T09:37:55.995Z",
+    "powered_on": true,
+    "os": 4
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 55,
+  "fields": {
+    "ip": "10.0.0.55",
+    "name": "machine-name-55",
+    "cpu_count": 14,
+    "memory": 3025,
+    "created_at": "2023-01-31T09:37:55.996Z",
+    "powered_on": false,
+    "os": 5
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 56,
+  "fields": {
+    "ip": "10.0.0.56",
+    "name": "machine-name-56",
+    "cpu_count": 0,
+    "memory": 3136,
+    "created_at": "2023-02-01T09:37:55.998Z",
+    "powered_on": true,
+    "os": 6
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 57,
+  "fields": {
+    "ip": "10.0.0.57",
+    "name": "machine-name-57",
+    "cpu_count": 2,
+    "memory": 3249,
+    "created_at": "2023-02-02T09:37:55.999Z",
+    "powered_on": false,
+    "os": 7
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 58,
+  "fields": {
+    "ip": "10.0.0.58",
+    "name": "machine-name-58",
+    "cpu_count": 4,
+    "memory": 3364,
+    "created_at": "2023-02-03T09:37:56.001Z",
+    "powered_on": true,
+    "os": 8
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 59,
+  "fields": {
+    "ip": "10.0.0.59",
+    "name": "machine-name-59",
+    "cpu_count": 6,
+    "memory": 3481,
+    "created_at": "2023-02-04T09:37:56.002Z",
+    "powered_on": false,
+    "os": 9
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 60,
+  "fields": {
+    "ip": "10.0.0.60",
+    "name": "machine-name-60",
+    "cpu_count": 8,
+    "memory": 3600,
+    "created_at": "2023-02-05T09:37:56.004Z",
+    "powered_on": true,
+    "os": 10
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 61,
+  "fields": {
+    "ip": "10.0.0.61",
+    "name": "machine-name-61",
+    "cpu_count": 10,
+    "memory": 3721,
+    "created_at": "2023-02-06T09:37:56.005Z",
+    "powered_on": false,
+    "os": 1
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 62,
+  "fields": {
+    "ip": "10.0.0.62",
+    "name": "machine-name-62",
+    "cpu_count": 12,
+    "memory": 3844,
+    "created_at": "2023-02-07T09:37:56.007Z",
+    "powered_on": true,
+    "os": 2
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 63,
+  "fields": {
+    "ip": "10.0.0.63",
+    "name": "machine-name-63",
+    "cpu_count": 14,
+    "memory": 3969,
+    "created_at": "2023-02-08T09:37:56.008Z",
+    "powered_on": false,
+    "os": 3
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 64,
+  "fields": {
+    "ip": "10.0.0.64",
+    "name": "machine-name-64",
+    "cpu_count": 0,
+    "memory": 4096,
+    "created_at": "2023-02-09T09:37:56.009Z",
+    "powered_on": true,
+    "os": 4
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 65,
+  "fields": {
+    "ip": "10.0.0.65",
+    "name": "machine-name-65",
+    "cpu_count": 2,
+    "memory": 4225,
+    "created_at": "2023-02-10T09:37:56.011Z",
+    "powered_on": false,
+    "os": 5
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 66,
+  "fields": {
+    "ip": "10.0.0.66",
+    "name": "machine-name-66",
+    "cpu_count": 4,
+    "memory": 4356,
+    "created_at": "2023-02-11T09:37:56.012Z",
+    "powered_on": true,
+    "os": 6
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 67,
+  "fields": {
+    "ip": "10.0.0.67",
+    "name": "machine-name-67",
+    "cpu_count": 6,
+    "memory": 4489,
+    "created_at": "2023-02-12T09:37:56.013Z",
+    "powered_on": false,
+    "os": 7
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 68,
+  "fields": {
+    "ip": "10.0.0.68",
+    "name": "machine-name-68",
+    "cpu_count": 8,
+    "memory": 4624,
+    "created_at": "2023-02-13T09:37:56.015Z",
+    "powered_on": true,
+    "os": 8
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 69,
+  "fields": {
+    "ip": "10.0.0.69",
+    "name": "machine-name-69",
+    "cpu_count": 10,
+    "memory": 4761,
+    "created_at": "2023-02-14T09:37:56.016Z",
+    "powered_on": false,
+    "os": 9
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 70,
+  "fields": {
+    "ip": "10.0.0.70",
+    "name": "machine-name-70",
+    "cpu_count": 12,
+    "memory": 4900,
+    "created_at": "2023-02-15T09:37:56.018Z",
+    "powered_on": true,
+    "os": 10
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 71,
+  "fields": {
+    "ip": "10.0.0.71",
+    "name": "machine-name-71",
+    "cpu_count": 14,
+    "memory": 5041,
+    "created_at": "2023-02-16T09:37:56.020Z",
+    "powered_on": false,
+    "os": 1
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 72,
+  "fields": {
+    "ip": "10.0.0.72",
+    "name": "machine-name-72",
+    "cpu_count": 0,
+    "memory": 5184,
+    "created_at": "2023-02-17T09:37:56.021Z",
+    "powered_on": true,
+    "os": 2
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 73,
+  "fields": {
+    "ip": "10.0.0.73",
+    "name": "machine-name-73",
+    "cpu_count": 2,
+    "memory": 5329,
+    "created_at": "2023-02-18T09:37:56.023Z",
+    "powered_on": false,
+    "os": 3
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 74,
+  "fields": {
+    "ip": "10.0.0.74",
+    "name": "machine-name-74",
+    "cpu_count": 4,
+    "memory": 5476,
+    "created_at": "2023-02-19T09:37:56.024Z",
+    "powered_on": true,
+    "os": 4
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 75,
+  "fields": {
+    "ip": "10.0.0.75",
+    "name": "machine-name-75",
+    "cpu_count": 6,
+    "memory": 5625,
+    "created_at": "2023-02-20T09:37:56.025Z",
+    "powered_on": false,
+    "os": 5
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 76,
+  "fields": {
+    "ip": "10.0.0.76",
+    "name": "machine-name-76",
+    "cpu_count": 8,
+    "memory": 5776,
+    "created_at": "2023-02-21T09:37:56.027Z",
+    "powered_on": true,
+    "os": 6
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 77,
+  "fields": {
+    "ip": "10.0.0.77",
+    "name": "machine-name-77",
+    "cpu_count": 10,
+    "memory": 5929,
+    "created_at": "2023-02-22T09:37:56.028Z",
+    "powered_on": false,
+    "os": 7
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 78,
+  "fields": {
+    "ip": "10.0.0.78",
+    "name": "machine-name-78",
+    "cpu_count": 12,
+    "memory": 6084,
+    "created_at": "2023-02-23T09:37:56.029Z",
+    "powered_on": true,
+    "os": 8
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 79,
+  "fields": {
+    "ip": "10.0.0.79",
+    "name": "machine-name-79",
+    "cpu_count": 14,
+    "memory": 6241,
+    "created_at": "2023-02-24T09:37:56.031Z",
+    "powered_on": false,
+    "os": 9
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 80,
+  "fields": {
+    "ip": "10.0.0.80",
+    "name": "machine-name-80",
+    "cpu_count": 0,
+    "memory": 6400,
+    "created_at": "2023-02-25T09:37:56.032Z",
+    "powered_on": true,
+    "os": 10
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 81,
+  "fields": {
+    "ip": "10.0.0.81",
+    "name": "machine-name-81",
+    "cpu_count": 2,
+    "memory": 6561,
+    "created_at": "2023-02-26T09:37:56.034Z",
+    "powered_on": false,
+    "os": 1
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 82,
+  "fields": {
+    "ip": "10.0.0.82",
+    "name": "machine-name-82",
+    "cpu_count": 4,
+    "memory": 6724,
+    "created_at": "2023-02-27T09:37:56.035Z",
+    "powered_on": true,
+    "os": 2
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 83,
+  "fields": {
+    "ip": "10.0.0.83",
+    "name": "machine-name-83",
+    "cpu_count": 6,
+    "memory": 6889,
+    "created_at": "2023-02-28T09:37:56.037Z",
+    "powered_on": false,
+    "os": 3
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 84,
+  "fields": {
+    "ip": "10.0.0.84",
+    "name": "machine-name-84",
+    "cpu_count": 8,
+    "memory": 7056,
+    "created_at": "2023-03-01T09:37:56.038Z",
+    "powered_on": true,
+    "os": 4
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 85,
+  "fields": {
+    "ip": "10.0.0.85",
+    "name": "machine-name-85",
+    "cpu_count": 10,
+    "memory": 7225,
+    "created_at": "2023-03-02T09:37:56.040Z",
+    "powered_on": false,
+    "os": 5
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 86,
+  "fields": {
+    "ip": "10.0.0.86",
+    "name": "machine-name-86",
+    "cpu_count": 12,
+    "memory": 7396,
+    "created_at": "2023-03-03T09:37:56.041Z",
+    "powered_on": true,
+    "os": 6
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 87,
+  "fields": {
+    "ip": "10.0.0.87",
+    "name": "machine-name-87",
+    "cpu_count": 14,
+    "memory": 7569,
+    "created_at": "2023-03-04T09:37:56.043Z",
+    "powered_on": false,
+    "os": 7
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 88,
+  "fields": {
+    "ip": "10.0.0.88",
+    "name": "machine-name-88",
+    "cpu_count": 0,
+    "memory": 7744,
+    "created_at": "2023-03-05T09:37:56.044Z",
+    "powered_on": true,
+    "os": 8
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 89,
+  "fields": {
+    "ip": "10.0.0.89",
+    "name": "machine-name-89",
+    "cpu_count": 2,
+    "memory": 7921,
+    "created_at": "2023-03-06T09:37:56.045Z",
+    "powered_on": false,
+    "os": 9
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 90,
+  "fields": {
+    "ip": "10.0.0.90",
+    "name": "machine-name-90",
+    "cpu_count": 4,
+    "memory": 8100,
+    "created_at": "2023-03-07T09:37:56.046Z",
+    "powered_on": true,
+    "os": 10
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 91,
+  "fields": {
+    "ip": "10.0.0.91",
+    "name": "machine-name-91",
+    "cpu_count": 6,
+    "memory": 8281,
+    "created_at": "2023-03-08T09:37:56.048Z",
+    "powered_on": false,
+    "os": 1
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 92,
+  "fields": {
+    "ip": "10.0.0.92",
+    "name": "machine-name-92",
+    "cpu_count": 8,
+    "memory": 8464,
+    "created_at": "2023-03-09T09:37:56.050Z",
+    "powered_on": true,
+    "os": 2
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 93,
+  "fields": {
+    "ip": "10.0.0.93",
+    "name": "machine-name-93",
+    "cpu_count": 10,
+    "memory": 8649,
+    "created_at": "2023-03-10T09:37:56.051Z",
+    "powered_on": false,
+    "os": 3
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 94,
+  "fields": {
+    "ip": "10.0.0.94",
+    "name": "machine-name-94",
+    "cpu_count": 12,
+    "memory": 8836,
+    "created_at": "2023-03-11T09:37:56.053Z",
+    "powered_on": true,
+    "os": 4
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 95,
+  "fields": {
+    "ip": "10.0.0.95",
+    "name": "machine-name-95",
+    "cpu_count": 14,
+    "memory": 9025,
+    "created_at": "2023-03-12T09:37:56.054Z",
+    "powered_on": false,
+    "os": 5
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 96,
+  "fields": {
+    "ip": "10.0.0.96",
+    "name": "machine-name-96",
+    "cpu_count": 0,
+    "memory": 9216,
+    "created_at": "2023-03-13T09:37:56.055Z",
+    "powered_on": true,
+    "os": 6
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 97,
+  "fields": {
+    "ip": "10.0.0.97",
+    "name": "machine-name-97",
+    "cpu_count": 2,
+    "memory": 9409,
+    "created_at": "2023-03-14T09:37:56.057Z",
+    "powered_on": false,
+    "os": 7
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 98,
+  "fields": {
+    "ip": "10.0.0.98",
+    "name": "machine-name-98",
+    "cpu_count": 4,
+    "memory": 9604,
+    "created_at": "2023-03-15T09:37:56.059Z",
+    "powered_on": true,
+    "os": 8
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 99,
+  "fields": {
+    "ip": "10.0.0.99",
+    "name": "machine-name-99",
+    "cpu_count": 6,
+    "memory": 9801,
+    "created_at": "2023-03-16T09:37:56.060Z",
+    "powered_on": false,
+    "os": 9
+  }
+},
+{
+  "model": "machine.machine",
+  "pk": 100,
+  "fields": {
+    "ip": "10.0.0.100",
+    "name": "machine-name-100",
+    "cpu_count": 8,
+    "memory": 10000,
+    "created_at": "2023-03-17T09:37:56.061Z",
+    "powered_on": true,
+    "os": 10
+  }
+}
+]
