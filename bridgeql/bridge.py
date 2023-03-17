@@ -9,29 +9,21 @@ from django.views.decorators.http import require_GET
 from bridgeql.exceptions import InvalidQueryException
 from bridgeql.helpers import JSONEncoder, JSONResponse
 from bridgeql.models import ModelBuilder
+from bridgeql.utils import b64decode_json
 
 
 @require_GET
 def read_django_model(request):
     params = request.GET.get('payload', None)
     try:
-        params = json.loads(base64.b64decode(params).decode('utf-8'))
+        params = b64decode_json(params)
         mb = ModelBuilder(params)
         qset = mb.queryset()  # get the result based on the given parameters
-        res = {'content': {'models': list(
-            qset)}, 'message': '', 'success': True}
-        return JSONResponse(res, content_type='application/json; charset=utf-8', encoder=JSONEncoder)
-    except ValueError as e:
-        res = {'content': {
-        }, 'message': "error while decoding JSON for model %s - %s" % (params['model_name'], e), 'success': False}
-        return JSONResponse(res, content_type='application/json; charset=utf-8', encoder=JSONEncoder)
-    except InvalidQueryException as e:
-        res = {'content': {
-        }, 'message': "invalid selector query - %s" % e, 'success': False}
-        return JSONResponse(res, content_type='application/json; charset=utf-8', encoder=JSONEncoder)
+        res = {'data': qset, 'message': '', 'success': True}
+        return JSONResponse(res)
     except Exception as e:
-        res = {'content': {}, 'message': e, 'success': False}
-        return JSONResponse(res, content_type='application/json; charset=utf-8', encoder=JSONEncoder)
+        res = {'data': [], 'message': e, 'success': False}
+        return JSONResponse(res)
 
     """
     args = {

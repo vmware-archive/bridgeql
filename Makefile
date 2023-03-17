@@ -16,7 +16,7 @@ test: install
 	@echo "--------------------------------------------------"
 	@source env.sh && \
 		cd $(PROJECT_ROOT)/tests/server && \
-		$(PY_BINARY) manage.py test
+		$(PY_BINARY) manage.py test -v2
 
 install: $(VENV_DIR)
 	@echo "\nInstalling all required packages"

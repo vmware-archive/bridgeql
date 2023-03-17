@@ -22,5 +22,9 @@ class Machine(models.Model):
     powered_on = models.BooleanField()
     os = models.ForeignKey(OperatingSystem, on_delete=models.CASCADE)
 
+    @property
+    def stats(self):
+        return 'CPU: %s, Mem %sGB' % (self.cpu_count, self.memory)
+
     def __unicode__(self):
         return self.ip

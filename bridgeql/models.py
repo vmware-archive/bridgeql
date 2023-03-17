@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from django.apps import apps
+from django.db.models import QuerySet
 
 from bridgeql.exceptions import BadRequestException
 from bridgeql.query import construct_query
@@ -11,7 +12,6 @@ from bridgeql.query import construct_query
 class ModelBuilder(object):
 
     _QUERYSET_OPTS = (
-        'filter',
         'exclude',
         'order_by',
         'distinct',
@@ -24,7 +24,7 @@ class ModelBuilder(object):
         self.model_name = None
         self.filter = None
         self.exclude = None
-        self.fields = None
+        self.fields = []
         self.order_by = None
         self.distinct = None
         self.count = None
@@ -32,6 +32,7 @@ class ModelBuilder(object):
         self.offset = 0  # default offset is 0
         # extra fields required to make queryset
         self.model = None
+        self.qset = None
         self._inject(params)
 
     def _inject(self, params):
@@ -46,11 +47,28 @@ class ModelBuilder(object):
 
         self.model = apps.get_model(self.app_name, self.model_name)
 
+    def _apply_opts(self):
+        if self.exclude:
+            self.qset = self.qset.exclude(**self.exclude)
+        if self.order_by:
+            self.qset = self.qset.order_by(*self.order_by)
+        if self.limit:
+            self.qset = self.qset[self.offset: self.offset + self.limit]
+
     def queryset(self):
         # construct Q object from dictionary
         query = construct_query(self.filter)
         if not self.using:
-            model_qset = self.model.objects.filter(query)
+            self.qset = self.model.objects.filter(query)
         else:
-            model_qset = self.model.objects.using(self.using).filter(query)
-        return model_qset
+            self.qset = self.model.objects.using(self.using).filter(query)
+        self._apply_opts()
+        if self.distinct:
+            self.qset = self.qset.distinct(*self.fields)
+        elif self.count:
+            self.qset = self.qset.count()
+        else:
+            self.qset = self.qset.values(*self.fields)
+        if isinstance(self.qset, QuerySet):
+            return list(self.qset)
+        return self.qset
