@@ -107,7 +107,7 @@ class MachineTest(TestCase):
             'filter': {
                 'created_at__lte': "2023-03-01"
             },
-            'fields': ['ip', 'created_at']
+            'fields': ['id', 'ip', 'created_at']
         })
         params = b64encode_json(self.params)
         resp = self.client.get(self.url, {'payload': params})

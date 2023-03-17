@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from django.apps import apps
+from django.core.exceptions import FieldDoesNotExist
 from django.db.models import QuerySet
 
 from bridgeql.exceptions import BadRequestException
@@ -55,20 +56,36 @@ class ModelBuilder(object):
         if self.limit:
             self.qset = self.qset[self.offset: self.offset + self.limit]
 
+    def _add_fields(self):
+        use_values = not (set(self.fields) -
+                          set(f.name for f in self.model._meta.fields))
+        if use_values:
+            return self.qset.values(*self.fields)
+        qset_values = []
+        for row in self.qset:
+            model_fields = {}
+            for field in self.fields:
+                attr = row
+                for ref in field.split('__'):
+                    attr = getattr(attr, ref)
+                model_fields[field] = attr
+            qset_values.append(model_fields)
+        return qset_values
+
     def queryset(self):
         # construct Q object from dictionary
         query = construct_query(self.filter)
         if not self.using:
             self.qset = self.model.objects.filter(query)
         else:
-            self.qset = self.model.objects.using(self.using).filter(query)
+            self.qset = self.model.objects.using(self.using).filter(~query)
         self._apply_opts()
         if self.distinct:
             self.qset = self.qset.distinct(*self.fields)
         elif self.count:
             self.qset = self.qset.count()
         else:
-            self.qset = self.qset.values(*self.fields)
+            self.qset = self._add_fields()
         if isinstance(self.qset, QuerySet):
             return list(self.qset)
         return self.qset
