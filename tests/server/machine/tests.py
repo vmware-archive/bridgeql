@@ -5,17 +5,19 @@
 import base64
 from datetime import datetime, timedelta
 import json
+import os
 
 from django.urls import reverse
 from django.test.client import Client
 from django.test.testcases import TestCase
+from django.conf import settings
 
 from bridgeql.utils import b64encode_json
 from machine.models import OperatingSystem, Machine
 
 
 class MachineTest(TestCase):
-    fixtures = ['machine_tests.json', ]
+    fixtures = [os.path.join(settings.BASE_DIR, 'machine_tests.json'), ]
 
     def setUp(self):
         self.params = {

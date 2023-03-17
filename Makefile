@@ -34,7 +34,7 @@ $(VENV_DIR):
 autopep8: install
 	@echo "\nChecking with python PEP8 compliance"
 	@echo "--------------------------------------------------"
-	@source env.sh && autopep8 --in-place --exclude=venv -r .
+	@source env.sh && autopep8 --in-place --exclude=venv,.tox -r .
 
 clean:
 	rm -rf $(VENV_DIR)

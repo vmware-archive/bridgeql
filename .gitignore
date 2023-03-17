@@ -14,5 +14,6 @@ venv
 .venv?
 .venv
 .eggs
+.tox
 *.egg-info
 *.py[co]

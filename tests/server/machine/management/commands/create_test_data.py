@@ -2,7 +2,8 @@
 # Copyright © 2023 VMware, Inc.  All rights reserved.
 # SPDX-License-Identifier: BSD-2-Clause
 
-from datetime import datetime, timedelta
+from datetime import timedelta
+from django.utils import timezone
 from django.core.management.base import BaseCommand
 
 from machine.models import Machine, OperatingSystem
@@ -33,7 +34,7 @@ class Command(BaseCommand):
                 name="machine-name-%d" % (i+1),
                 cpu_count=((i+1) % 8)*2,
                 memory=(i+1)**2,
-                created_at=datetime.now() - timedelta(days=99-i),
+                created_at=timezone.now() - timedelta(days=99-i),
                 powered_on=bool(i % 2),
                 os_id=i % (10*scale) + 1
             )
