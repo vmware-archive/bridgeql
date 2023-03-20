@@ -117,6 +117,20 @@ class MachineTest(TestCase):
         res_json = resp.json()
         self.assertEqual(83, len(res_json['data']))
 
+    # add properties
+    def test_get_one_field(self):
+        self.params.update({
+            'filter': {
+                'pk': 4,
+            },
+            'fields': ['os__name']
+        })
+        params = b64encode_json(self.params)
+        resp = self.client.get(self.url, {'payload': params})
+        self.assertEqual(resp.status_code, 200)
+        res_json = resp.json()
+        self.assertEqual(1, len(res_json['data']))
+
     def test_if_data_loaded(self):
         """
         with --scale set to default 1 we have created

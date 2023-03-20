@@ -2,12 +2,9 @@
 # Copyright © 2023 VMware, Inc.  All rights reserved.
 # SPDX-License-Identifier: BSD-2-Clause
 
-import base64
-import json
 from django.views.decorators.http import require_GET
 
-from bridgeql.exceptions import InvalidQueryException
-from bridgeql.helpers import JSONEncoder, JSONResponse
+from bridgeql.helpers import JSONResponse
 from bridgeql.models import ModelBuilder
 from bridgeql.utils import b64decode_json
 

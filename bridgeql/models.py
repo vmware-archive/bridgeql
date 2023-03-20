@@ -78,7 +78,7 @@ class ModelBuilder(object):
         if not self.using:
             self.qset = self.model.objects.filter(query)
         else:
-            self.qset = self.model.objects.using(self.using).filter(~query)
+            self.qset = self.model.objects.using(self.using).filter(query)
         self._apply_opts()
         if self.distinct:
             self.qset = self.qset.distinct(*self.fields)
