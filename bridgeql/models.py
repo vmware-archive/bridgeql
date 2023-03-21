@@ -53,8 +53,6 @@ class ModelBuilder(object):
             self.qset = self.qset.exclude(**self.exclude)
         if self.order_by:
             self.qset = self.qset.order_by(*self.order_by)
-        if self.limit:
-            self.qset = self.qset[self.offset: self.offset + self.limit]
 
     def _add_fields(self):
         use_values = not (set(self.fields) -
@@ -86,6 +84,8 @@ class ModelBuilder(object):
             self.qset = self.qset.count()
         else:
             self.qset = self._add_fields()
+        if self.limit:
+            self.qset = self.qset[self.offset: self.offset + self.limit]
         if isinstance(self.qset, QuerySet):
             return list(self.qset)
         return self.qset
