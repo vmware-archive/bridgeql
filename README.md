@@ -49,6 +49,37 @@ urlpatterns = [
 ]
 ...
 ```
+This way your app will be ready to serve the REST API to expose model query, you can request an API like follows:
+```python
+    params = {
+       'using': 'db1',
+       'app_name': 'machine',
+       'model_name': 'Machine',
+       'filter': {
+           'os__name': 'os-name-1'
+        },
+        'fields': ['ip', 'name', 'id'],
+        'exclude': {
+           'name': 'machine-name-11'
+        },
+        'order_by': ['ip'],
+        'limit': 5,
+        'offset': 10,
+    }
+    resp = make_post_api_call(api_url, {'payload': json.dumps(params))
+    result = resp.json()
+```
+
+The above parameters will translate into running the model query for `Machine` model of `machine` django app.
+
+```python
+Machine.objects.using('db1')
+                .filter(os__name = 'os-name-1)
+                .exclude(name = 'machine-name-11)
+                .values(['ip', 'name', 'id'])
+                .order_by('ip')[10:15] # offset: offset + limit
+```
+
 
 ## Management Commands
 
@@ -61,9 +92,9 @@ added to the `INSTALLED_APPS` to add these commands):
 ### Build & Run
 
 1. make test
-2. tox
-3. python3 -m pip install --upgrade build
-4. python3 -m build
+2. source venv/bin/activate && tox
+3. python -m pip install --upgrade build
+4. python -m build
 
 ## Documentation
 
@@ -77,6 +108,8 @@ as an open-source patch. For more detailed information, refer to [CONTRIBUTING.m
 
 ## Authors
 
-Created and maintained by Piyus Kumar <piyusk@vmware.com>
+Created and maintained by\
+Piyus Kumar <piyusk@vmware.com>\
+Priyank Singh <priyanksi@vmware.com>
 
 Copyright © 2023, VMware, Inc.  All rights reserved.
