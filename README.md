@@ -1,7 +1,7 @@
 # BridgeQL
 
 
-`bridgeql` is part of VMware's support of open source development
+`bridgeql` is part of VMware's support for open source development
 and community.
 
 A library which will add feature to serve your model over rest API
@@ -74,8 +74,8 @@ The above parameters will translate into running the model query for `Machine` m
 
 ```python
 Machine.objects.using('db1')
-                .filter(os__name = 'os-name-1)
-                .exclude(name = 'machine-name-11)
+                .filter(os__name = 'os-name-1')
+                .exclude(name = 'machine-name-11')
                 .values(['ip', 'name', 'id'])
                 .order_by('ip')[10:15] # offset: offset + limit
 ```
@@ -83,10 +83,12 @@ Machine.objects.using('db1')
 
 ## Management Commands
 
-`bridgeql` includes few management commands (`bridgeql` needs to be
-added to the `INSTALLED_APPS` to add these commands):
+`bridgeql` includes few management commands (`bridgeql` needs to be added to the `INSTALLED_APPS` to add these commands):
 
-* `python manage.py create_test_data`: for testing purpose we can create some test data
+```python
+python manage.py create_test_data # for testing purpose we can create some test data
+python manage.py dumpdata --indent 2 > machine_tests.json # to create test fixtures
+```
 
 
 ### Build & Run
