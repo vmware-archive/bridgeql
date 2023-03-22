@@ -44,7 +44,7 @@ from bridgeql import urls as bridgeql_urls
 
 urlpatterns = [
     ...
-    path('bridgeql/', include(bridgeql_urls)),
+    path('api/bridgeql/', include(bridgeql_urls)),
     ...
 ]
 ...
@@ -53,8 +53,8 @@ This way your app will be ready to serve the REST API to expose model query, you
 ```python
     params = {
        'using': 'db1',
-       'app_name': 'machine',
-       'model_name': 'Machine',
+       'app_name': 'machine', # required
+       'model_name': 'Machine', # required
        'filter': {
            'os__name': 'os-name-1'
         },
@@ -64,8 +64,9 @@ This way your app will be ready to serve the REST API to expose model query, you
         },
         'order_by': ['ip'],
         'limit': 5,
-        'offset': 10,
+        'offset': 10, # default 0
     }
+    api_url = '<yoursite.com>/api/bridgeql/dj_read'
     resp = make_post_api_call(api_url, {'payload': json.dumps(params))
     result = resp.json()
 ```
@@ -78,16 +79,6 @@ Machine.objects.using('db1')
                 .exclude(name = 'machine-name-11')
                 .values(['ip', 'name', 'id'])
                 .order_by('ip')[10:15] # offset: offset + limit
-```
-
-
-## Management Commands
-
-`bridgeql` includes few management commands (`bridgeql` needs to be added to the `INSTALLED_APPS` to add these commands):
-
-```python
-python manage.py create_test_data # for testing purpose we can create some test data
-python manage.py dumpdata --indent 2 > machine_tests.json # to create test fixtures
 ```
 
 
