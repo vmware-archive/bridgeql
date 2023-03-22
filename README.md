@@ -20,6 +20,13 @@ SPDX-License-Identifier: BSD-2-Clause
 
 ## Django Integration
 
+### Installation
+
+You can install it directly from [pypi.org](https://pypi.org/project/bridgeql/) using
+```shell
+pip install bridgeql
+```
+
 The bridgeql library can be integrated to the Django app by editing settings
 file by including `bridgeql` in the `settings.INSTALLED_APPS` variable.
 Another change required is to add a url to your existing project as
