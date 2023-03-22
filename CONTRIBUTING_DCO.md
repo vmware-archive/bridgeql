@@ -6,6 +6,7 @@ Please familiarize yourself with the [Code of Conduct](https://github.com/vmware
 
 Before you start working with `bridgeql`, please read our [Developer Certificate of Origin](https://cla.vmware.com/dco). All contributions to this repository must be signed as described on that page. Your signature certifies that you wrote the patch or have the right to pass it on as an open-source patch.
 
+
 ## Ways to contribute
 
 We welcome many different types of contributions and not all of them need a Pull request. Contributions may include:
@@ -87,20 +88,21 @@ git push --force-with-lease origin my-new-feature
 Be sure to add a comment to the PR indicating your new changes are ready
 to review, as GitHub does not generate a notification when you git push.
 
-### Formatting Commit Messages
+### Unit Test, Build & Run
 
-We follow the conventions on [How to Write a Git Commit
-Message](http://chris.beams.io/posts/git-commit/).
+```shell
+make test
+source venv/bin/activate && tox
+python -m pip install --upgrade build
+python -m build
+```
 
-Be sure to include any related GitHub issue references in the commit message.
-See
-[GFM syntax](https://guides.github.com/features/mastering-markdown/#GitHub-flavored-markdown)
-for referencing issues and commits.
 
 ## Reporting Bugs and Creating Issues
 
 When opening a new issue, try to roughly follow the commit message format conventions above.\
 Please include the environment versions e.g `operation system`, `python` and `django` in the issue.
+
 
 ## Ask for Help
 
