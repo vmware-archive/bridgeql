@@ -12,7 +12,7 @@ A library which will add feature to serve your model over rest API
 
 ## License
 
-`bridgeql` is release under the BSD-2 license, see the LICENSE file.
+`bridgeql` is release under the BSD-2 license, see the [LICENSE](LICENSE) file.
 
 SPDX-License-Identifier: BSD-2-Clause
 
