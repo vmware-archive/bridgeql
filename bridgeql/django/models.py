@@ -3,11 +3,10 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from django.apps import apps
-from django.core.exceptions import FieldDoesNotExist
 from django.db.models import QuerySet
 
-from bridgeql.exceptions import BadRequestException
-from bridgeql.query import construct_query
+from bridgeql.django.exceptions import BadRequestException
+from bridgeql.django.query import construct_query
 
 
 class ModelBuilder(object):

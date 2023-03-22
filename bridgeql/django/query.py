@@ -4,7 +4,7 @@
 
 from django.db.models import Q
 
-from bridgeql.exceptions import InvalidQueryException
+from bridgeql.django.exceptions import InvalidQueryException
 
 
 def construct_query(selector):

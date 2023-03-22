@@ -9,6 +9,8 @@ A library which will add feature to serve your model over rest API
 * This will ask user to provide request in defined format and will serve the API response as json data
 * This will allow users to make filter, selection, ordering, slicing and count of model objects
 
+As of today we only support for [django](https://www.djangoproject.com/), will add support for [sqlalchemy](https://www.sqlalchemy.org/) soon.
+
 
 ## License
 
@@ -16,7 +18,7 @@ A library which will add feature to serve your model over rest API
 
 SPDX-License-Identifier: BSD-2-Clause
 
-## Usage
+## Django Integration
 
 The bridgeql library can be integrated to the Django app by editing settings
 file by including `bridgeql` in the `settings.INSTALLED_APPS` variable.
@@ -39,7 +41,7 @@ INSTALLED_APPS = [
 On your project you can edit `urls.py`, to include the `bridgeql` urls.
 
 ```python
-from bridgeql import urls as bridgeql_urls
+from bridgeql.django import urls as bridgeql_urls
 ...
 
 urlpatterns = [

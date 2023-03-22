@@ -7,7 +7,7 @@ try:
 except ImportError:
     from django.conf.urls import url as path
 
-from bridgeql.bridge import read_django_model
+from bridgeql.django.bridge import read_django_model
 
 urlpatterns = [
     path('dj_read/', read_django_model, name='bridgeql_django_read'),

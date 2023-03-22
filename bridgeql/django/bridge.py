@@ -2,18 +2,18 @@
 # Copyright © 2023 VMware, Inc.  All rights reserved.
 # SPDX-License-Identifier: BSD-2-Clause
 
-from django.views.decorators.http import require_GET
+import json
+from django.views.decorators.http import require_POST
 
-from bridgeql.helpers import JSONResponse
-from bridgeql.models import ModelBuilder
-from bridgeql.utils import b64decode_json
+from bridgeql.django.helpers import JSONResponse
+from bridgeql.django.models import ModelBuilder
 
 
-@require_GET
+@require_POST
 def read_django_model(request):
-    params = request.GET.get('payload', None)
+    params = request.POST.get('payload', None)
     try:
-        params = b64decode_json(params)
+        params = json.loads(params)
         mb = ModelBuilder(params)
         qset = mb.queryset()  # get the result based on the given parameters
         res = {'data': qset, 'message': '', 'success': True}

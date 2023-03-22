@@ -12,7 +12,6 @@ from django.test.client import Client
 from django.test.testcases import TestCase
 from django.conf import settings
 
-from bridgeql.utils import b64encode_json
 from machine.models import OperatingSystem, Machine
 
 
@@ -34,8 +33,7 @@ class MachineTest(TestCase):
             },
             'fields': ['ip', 'name', 'created_at']
         })
-        params = b64encode_json(self.params)
-        resp = self.client.get(self.url, {'payload': params})
+        resp = self.client.post(self.url, {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
         resp_json = resp.json()
         self.assertEqual(resp_json['data'][0]['ip'], "10.0.0.1")
@@ -50,8 +48,7 @@ class MachineTest(TestCase):
                 'name': 'machine-name-11'
             }
         })
-        params = b64encode_json(self.params)
-        resp = self.client.get(self.url, {'payload': params})
+        resp = self.client.post(self.url, {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
         res_json = resp.json()
         self.assertEqual(9, len(res_json['data']))
@@ -64,8 +61,7 @@ class MachineTest(TestCase):
             'fields': ['cpu_count'],
             'distinct': True
         })
-        params = b64encode_json(self.params)
-        resp = self.client.get(self.url, {'payload': params})
+        resp = self.client.post(self.url, {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
         res_json = resp.json()
         self.assertEqual(2, len(res_json['data']))
@@ -77,8 +73,7 @@ class MachineTest(TestCase):
             },
             'count': True
         })
-        params = b64encode_json(self.params)
-        resp = self.client.get(self.url, {'payload': params})
+        resp = self.client.post(self.url, {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
         res_json = resp.json()
         self.assertEqual(10, res_json['data'])
@@ -93,8 +88,7 @@ class MachineTest(TestCase):
             'limit': 2,
             'offset': 3
         })
-        params = base64.b64encode(json.dumps(self.params).encode('utf-8'))
-        resp = self.client.get(self.url, {'payload': params})
+        resp = self.client.post(self.url, {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
         res_json = resp.json()
         result = [
@@ -111,8 +105,7 @@ class MachineTest(TestCase):
             },
             'fields': ['id', 'ip', 'created_at']
         })
-        params = b64encode_json(self.params)
-        resp = self.client.get(self.url, {'payload': params})
+        resp = self.client.post(self.url, {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
         res_json = resp.json()
         self.assertEqual(83, len(res_json['data']))
@@ -125,8 +118,7 @@ class MachineTest(TestCase):
             },
             'fields': ['os__name']
         })
-        params = b64encode_json(self.params)
-        resp = self.client.get(self.url, {'payload': params})
+        resp = self.client.post(self.url, {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
         res_json = resp.json()
         self.assertEqual(1, len(res_json['data']))
@@ -134,7 +126,7 @@ class MachineTest(TestCase):
     def test_if_data_loaded(self):
         """
         with --scale set to default 1 we have created
-         10 OperatingSystem entries and
+        010 OperatingSystem entries and
         100 Machine entries in DB to make the test fixtures
         This will be used in testing
         machine.name = machine-name-%id

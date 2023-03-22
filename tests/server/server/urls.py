@@ -23,7 +23,7 @@ try:
 except ImportError:
     from django.conf.urls import url as path, include
 
-from bridgeql import urls as bridgeql_urls
+from bridgeql.django import urls as bridgeql_urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
