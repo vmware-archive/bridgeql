@@ -25,7 +25,7 @@ setuptools.setup(
         "Bug Tracker": "https://github.com/vmware/bridgeql/issues"
     },
     classifiers={
-        "Development Status :: Beta",
+        "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: BSD License",
         "Natural Language :: English",
