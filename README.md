@@ -61,7 +61,7 @@ urlpatterns = [
 This way your app will be ready to serve the REST API to expose model query, you can request an API like follows:
 ```python
     params = {
-       'using': 'db1',
+       'db_name': 'db1',
        'app_name': 'machine', # required
        'model_name': 'Machine', # required
        'filter': {
