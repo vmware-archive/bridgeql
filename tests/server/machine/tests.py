@@ -33,7 +33,7 @@ class MachineTest(TestCase):
             },
             'fields': ['ip', 'name', 'created_at']
         })
-        resp = self.client.post(self.url, {'payload': json.dumps(self.params)})
+        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
         resp_json = resp.json()
         self.assertEqual(resp_json['data'][0]['ip'], "10.0.0.1")
@@ -48,23 +48,23 @@ class MachineTest(TestCase):
                 'name': 'machine-name-11'
             }
         })
-        resp = self.client.post(self.url, {'payload': json.dumps(self.params)})
+        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
         res_json = resp.json()
         self.assertEqual(9, len(res_json['data']))
 
-    def del_test_distinct_query(self):
+    def test_distinct_query(self):
         self.params.update({
             'filter': {
                 'name__startswith': 'machine-name'
             },
-            'fields': ['cpu_count'],
+            'fields': ['os__name'],
             'distinct': True
         })
-        resp = self.client.post(self.url, {'payload': json.dumps(self.params)})
+        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
         res_json = resp.json()
-        self.assertEqual(2, len(res_json['data']))
+        self.assertEqual(10, len(res_json['data']))
 
     def test_count_query(self):
         self.params.update({
@@ -73,10 +73,24 @@ class MachineTest(TestCase):
             },
             'count': True
         })
-        resp = self.client.post(self.url, {'payload': json.dumps(self.params)})
+        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
         res_json = resp.json()
         self.assertEqual(10, res_json['data'])
+
+    def test_count_distinct_query(self):
+        self.params.update({
+            'filter': {
+                'name__startswith': 'machine-name'
+            },
+            'fields': ['cpu_count'],
+            'distinct': True,
+            'count': True
+        })
+        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        self.assertEqual(resp.status_code, 200)
+        res_json = resp.json()
+        self.assertEqual(8, res_json['data'])
 
     def test_limit_query(self):
         self.params.update({
@@ -88,7 +102,7 @@ class MachineTest(TestCase):
             'limit': 2,
             'offset': 3
         })
-        resp = self.client.post(self.url, {'payload': json.dumps(self.params)})
+        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
         res_json = resp.json()
         result = [
@@ -105,7 +119,7 @@ class MachineTest(TestCase):
             },
             'fields': ['id', 'ip', 'created_at']
         })
-        resp = self.client.post(self.url, {'payload': json.dumps(self.params)})
+        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
         res_json = resp.json()
         self.assertEqual(83, len(res_json['data']))
@@ -118,7 +132,7 @@ class MachineTest(TestCase):
             },
             'fields': ['os__name']
         })
-        resp = self.client.post(self.url, {'payload': json.dumps(self.params)})
+        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
         res_json = resp.json()
         self.assertEqual(1, len(res_json['data']))
@@ -134,3 +148,8 @@ class MachineTest(TestCase):
         """
         self.assertEqual(OperatingSystem.objects.count(), 10)
         self.assertEqual(Machine.objects.count(), 100)
+
+    def test_fail_distinct_with_property(self):
+        # TODO test should faild if distinct is True and
+        # properties are present in fields
+        pass

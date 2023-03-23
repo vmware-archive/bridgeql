@@ -3,15 +3,15 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 import json
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_GET, require_POST
 
 from bridgeql.django.helpers import JSONResponse
 from bridgeql.django.models import ModelBuilder
 
 
-@require_POST
+@require_GET
 def read_django_model(request):
-    params = request.POST.get('payload', None)
+    params = request.GET.get('payload', None)
     try:
         params = json.loads(params)
         mb = ModelBuilder(params)
