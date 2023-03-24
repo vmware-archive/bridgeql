@@ -3,12 +3,12 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 import json
-from django.views.decorators.http import require_GET, require_POST
+from django.views.decorators.http import require_GET
 
 from bridgeql.django.helpers import JSONResponse
 from bridgeql.django.models import ModelBuilder
 
-
+# TODO refine error handling
 @require_GET
 def read_django_model(request):
     params = request.GET.get('payload', None)
@@ -19,8 +19,8 @@ def read_django_model(request):
         res = {'data': qset, 'message': '', 'success': True}
         return JSONResponse(res)
     except Exception as e:
-        res = {'data': [], 'message': e, 'success': False}
-        return JSONResponse(res)
+        res = {'data': [], 'message': str(e), 'success': False}
+        return JSONResponse(res, status=400)
 
     """
     args = {
