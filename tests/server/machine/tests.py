@@ -38,6 +38,23 @@ class MachineTest(TestCase):
         resp_json = resp.json()
         self.assertEqual(resp_json['data'][0]['ip'], "10.0.0.1")
 
+    def test_or_query(self):
+        self.params.update({
+            'filter': {
+                'os': 1,
+                '__or': [
+                    {'pk': 1},
+                    {'name__startswith': 'machine-name-2'}
+                ]
+            },
+            'fields': ['ip']
+        })
+        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        self.assertEqual(resp.status_code, 200)
+        resp_json = resp.json()
+        # matching results are machine-name-2, machine-name-1
+        self.assertEqual(2, len(resp_json['data']))
+
     def test_exclude_query(self):
         self.params.update({
             'filter': {
