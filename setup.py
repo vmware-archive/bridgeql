@@ -2,7 +2,6 @@
 # Copyright © 2023 VMware, Inc.  All rights reserved.
 # SPDX-License-Identifier: BSD-2-Clause
 
-import os
 import setuptools
 
 
@@ -11,7 +10,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="bridgeql",
-    version="0.1.7-beta",
+    version="0.1.8-beta",
     author="Piyus Kumar",
     author_email="piyusk@vmware.com",
     description="Query language to bridge the gap between REST API and ORM capability",
