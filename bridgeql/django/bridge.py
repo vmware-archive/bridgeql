@@ -9,6 +9,8 @@ from bridgeql.django.helpers import JSONResponse
 from bridgeql.django.models import ModelBuilder
 
 # TODO refine error handling
+
+
 @require_GET
 def read_django_model(request):
     params = request.GET.get('payload', None)

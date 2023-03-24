@@ -153,3 +153,15 @@ class MachineTest(TestCase):
         # TODO test should faild if distinct is True and
         # properties are present in fields
         pass
+
+    def test_invalid_field(self):
+        self.params.update({
+            'filter': {
+                'pk': 4,
+            },
+            'fields': ['invalid']
+        })
+        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        self.assertEqual(resp.status_code, 400)
+        resp_json = resp.json()
+        self.assertFalse(resp_json['success'])
