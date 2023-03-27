@@ -182,3 +182,45 @@ class MachineTest(TestCase):
         self.assertEqual(resp.status_code, 400)
         resp_json = resp.json()
         self.assertFalse(resp_json['success'])
+
+    def test_restricted_model(self):
+        self.params = {
+            'app_name': 'auth',
+            'model_name': 'User',
+            'filter': {
+                'username': 'bridgeql',
+            },
+            'fields': ['username', 'last_login'],
+        }
+        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        self.assertEqual(resp.status_code, 403)
+        resp_json = resp.json()
+        self.assertFalse(resp_json['success'])
+
+    def test_restricted_field(self):
+        self.params = {
+            'app_name': 'machine',
+            'model_name': 'OperatingSystem',
+            'filter': {
+                'name__startswith': 'os-name-',
+            },
+            'fields': ['name', 'license_key'],
+        }
+        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        self.assertEqual(resp.status_code, 403)
+        resp_json = resp.json()
+        self.assertFalse(resp_json['success'])
+
+    def test_non_restricted_field(self):
+        self.params = {
+            'app_name': 'machine',
+            'model_name': 'OperatingSystem',
+            'filter': {
+                'name__startswith': 'os-name-',
+            },
+            'fields': ['name', 'arch'],
+        }
+        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        self.assertEqual(resp.status_code, 200)
+        resp_json = resp.json()
+        self.assertTrue(resp_json['success'])

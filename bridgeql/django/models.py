@@ -6,7 +6,7 @@ from django.apps import apps
 from django.db.models import QuerySet
 
 from bridgeql.django import logger
-from bridgeql.django.exceptions import BadRequestException
+from bridgeql.django.exceptions import BadRequestException, UnauthorizedModelException
 from bridgeql.django.query import construct_query
 
 
@@ -102,6 +102,9 @@ class ModelBuilder(object):
         # construct Q object from dictionary
         # x = Machine.objects.filter(name__startswith='machine-name-1')
         # x.distinct().order_by('os__name').values('os__name','ip').count()
+        if not self.model:
+            raise UnauthorizedModelException(
+                "Restricted access to %s.%s" % (self.app_name, self.model_name))
         query = construct_query(self.params.filter)
         if self.params.db_name:
             self.qset = self.model.objects.using(

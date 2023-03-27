@@ -8,6 +8,7 @@ from django.db import models
 class OperatingSystem(models.Model):
     name = models.CharField(max_length=32)
     arch = models.CharField(max_length=16)
+    license_key = models.UUIDField(null=True)
 
     def __unicode__(self):
         return self.name
