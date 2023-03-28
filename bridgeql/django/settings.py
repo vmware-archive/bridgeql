@@ -9,7 +9,8 @@ from bridgeql.django.exceptions import InvalidBridgeQLSettings, InvalidAppOrMode
 
 
 DEFAULTS = {
-    'BRIDGEQL_RESTRICTED_MODELS': None
+    'BRIDGEQL_RESTRICTED_MODELS': None,
+    'BRIDGEQL_AUTHENTICATION_DECORATOR': False
 }
 
 

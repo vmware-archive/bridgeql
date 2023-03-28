@@ -7,8 +7,8 @@ from django.db.models import QuerySet
 
 from bridgeql.django import logger
 from bridgeql.django.exceptions import (
-    InvalidRequest,
     ForbiddenModelOrField,
+    InvalidRequest,
     InvalidAppOrModelName,
     InvalidModelFieldName
 )

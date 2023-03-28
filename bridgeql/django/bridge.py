@@ -5,13 +5,19 @@
 import json
 from django.views.decorators.http import require_GET
 
-from bridgeql.django.exceptions import ForbiddenModelOrField, InvalidRequest
+
+from bridgeql.django.auth import auth_decorator
+from bridgeql.django.exceptions import (
+    ForbiddenModelOrField,
+    InvalidRequest
+)
 from bridgeql.django.helpers import JSONResponse
 from bridgeql.django.models import ModelBuilder
 
 # TODO refine error handling
 
 
+@auth_decorator
 @require_GET
 def read_django_model(request):
     params = request.GET.get('payload', None)
