@@ -6,8 +6,14 @@ from django.apps import apps
 from django.db.models import QuerySet
 
 from bridgeql.django import logger
-from bridgeql.django.exceptions import BadRequestException, UnauthorizedModelException
+from bridgeql.django.exceptions import (
+    InvalidRequest,
+    ForbiddenModelOrField,
+    InvalidAppOrModelName,
+    InvalidModelFieldName
+)
 from bridgeql.django.query import construct_query
+from bridgeql.django.settings import bridgeql_settings
 
 
 class Parameters(object):
@@ -34,7 +40,7 @@ class Parameters(object):
             setattr(self, param, value)
         # validation for required fields
         if not any((self.app_name, self.model_name)):
-            raise BadRequestException('app_name or model_name missing')
+            raise InvalidRequest('app_name or model_name missing')
 
 
 class DBRows(list):
@@ -57,8 +63,7 @@ class ModelBuilder(object):
         self.model = None
         self.qset = None
 
-        self.model = apps.get_model(
-            self.params.app_name, self.params.model_name)
+        self.model = self._get_model()
 
     def _apply_opts(self):
         for opt, qset_opt in ModelBuilder._QUERYSET_OPTS:
@@ -78,6 +83,20 @@ class ModelBuilder(object):
             else:
                 self.qset = func()
 
+    def _get_model(self):
+        app_model_name = '.'.join(
+            (self.params.app_name, self.params.model_name))
+        if app_model_name in bridgeql_settings.BRIDGEQL_RESTRICTED_MODELS:
+            raise ForbiddenModelOrField(
+                'Unable to access restricted model %s.' % app_model_name)
+        try:
+            model = apps.get_model(self.params.app_name,
+                                   self.params.model_name)
+        except LookupError:
+            raise InvalidAppOrModelName(
+                'Invalid app or model name %s.' % app_model_name)
+        return model
+
     def has_properties(self):
         # TODO show error if distinct is True and properties are present in fields
         if self.params.distinct:
@@ -93,7 +112,11 @@ class ModelBuilder(object):
             for field in self.params.fields:
                 attr = row
                 for ref in field.split('__'):
-                    attr = getattr(attr, ref)
+                    try:
+                        attr = getattr(attr, ref)
+                    except AttributeError:
+                        raise InvalidModelFieldName(
+                            'Invalid query for field %s.' % ref)
                 model_fields[field] = attr
             qset_values.append(model_fields)
         return qset_values
@@ -102,9 +125,6 @@ class ModelBuilder(object):
         # construct Q object from dictionary
         # x = Machine.objects.filter(name__startswith='machine-name-1')
         # x.distinct().order_by('os__name').values('os__name','ip').count()
-        if not self.model:
-            raise UnauthorizedModelException(
-                "Restricted access to %s.%s" % (self.app_name, self.model_name))
         query = construct_query(self.params.filter)
         if self.params.db_name:
             self.qset = self.model.objects.using(

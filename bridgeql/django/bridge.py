@@ -5,6 +5,7 @@
 import json
 from django.views.decorators.http import require_GET
 
+from bridgeql.django.exceptions import ForbiddenModelOrField, InvalidRequest
 from bridgeql.django.helpers import JSONResponse
 from bridgeql.django.models import ModelBuilder
 
@@ -20,9 +21,15 @@ def read_django_model(request):
         qset = mb.queryset()  # get the result based on the given parameters
         res = {'data': qset, 'message': '', 'success': True}
         return JSONResponse(res)
-    except Exception as e:
+    except ForbiddenModelOrField as e:
+        res = {'data': [], 'message': str(e), 'success': False}
+        return JSONResponse(res, status=403)
+    except InvalidRequest as e:
         res = {'data': [], 'message': str(e), 'success': False}
         return JSONResponse(res, status=400)
+    except Exception as e:
+        res = {'data': [], 'message': str(e), 'success': False}
+        return JSONResponse(res, status=500)
 
     """
     args = {
