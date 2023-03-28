@@ -2,11 +2,13 @@
 # Copyright © 2023 VMware, Inc.  All rights reserved.
 # SPDX-License-Identifier: BSD-2-Clause
 
+import importlib
+
 from django.http import HttpResponse
 from django.contrib.auth import authenticate
 
 from bridgeql.django.settings import bridgeql_settings
-from bridgeql.utils import b64decode
+from bridgeql.utils import b64decode, load_function
 
 
 def simple_auth(api):
@@ -23,11 +25,6 @@ def simple_auth(api):
         response['WWW-Authenticate'] = 'Basic base64(user:password)'
         return response
     return wrap
-
-
-def load_function(func_name):
-    # TODO : load decorator function
-    return func_name
 
 
 if bridgeql_settings.BRIDGEQL_AUTHENTICATION_DECORATOR is False:

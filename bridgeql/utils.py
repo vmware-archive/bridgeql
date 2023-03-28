@@ -1,4 +1,5 @@
 import base64
+import importlib
 import json
 import sys
 
@@ -27,3 +28,9 @@ def b64decode_json(data):
     if PY_VERSION >= 3:
         return json.loads(base64.b64decode(data).decode('utf-8'))
     return json.loads(base64.b64decode(data))
+
+
+def load_function(function_str):
+    mod_name, func_name = function_str.rsplit('.', 1)
+    mod = importlib.import_module(mod_name)
+    return getattr(mod, func_name)

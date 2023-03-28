@@ -6,8 +6,8 @@ import json
 import os
 
 from django.urls import reverse
+from django.test import TestCase, override_settings
 from django.test.client import Client
-from django.test.testcases import TestCase
 from django.conf import settings
 
 from machine.models import OperatingSystem, Machine
@@ -223,9 +223,7 @@ class TestAPIReader(TestCase):
         }
         resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 403)
-        resp_json = resp.json()
-        print(resp_json['message'])
-        self.assertFalse(resp_json['success'])
+        self.assertFalse(resp.json()['success'])
 
     def test_non_restricted_field(self):
         self.params = {
@@ -253,8 +251,7 @@ class TestAPIReader(TestCase):
         }
         resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 400)
-        resp_json = resp.json()
-        self.assertFalse(resp_json['success'])
+        self.assertFalse(resp.json()['success'])
 
     def test_invalid_app_name(self):
         self.params = {
@@ -267,5 +264,18 @@ class TestAPIReader(TestCase):
         }
         resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 400)
-        resp_json = resp.json()
-        self.assertFalse(resp_json['success'])
+        self.assertFalse(resp.json()['success'])
+
+    @override_settings(BRIDGEQL_AUTHENTICATION_DECORATOR='server.auth.same_sunbet1')
+    def test_custom_auth_decorator(self):
+        self.params = {
+            'app_name': 'machine',
+            'model_name': 'OperatingSystem',
+            'filter': {
+                'pk__lte': 4,
+            },
+            'fields': ['name', 'arch']
+        }
+        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        # self.assertEqual(resp.status_code, 200)
+        # self.assertEqual(4, len(res_json['data']))

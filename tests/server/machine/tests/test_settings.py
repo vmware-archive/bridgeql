@@ -56,3 +56,15 @@ class TestSettings(TestCase):
             with self.settings(BRIDGEQL_RESTRICTED_MODELS=model):
                 self.assertTrue(InvalidAppOrModelName,
                                 bridgeql_settings.validate)
+
+    @override_settings(BRIDGEQL_AUTHENTICATION_DECORATOR='nopackage.nomodule.nodecorator')
+    def test_invalid_auth_decorator(self):
+        self.assertRaises(InvalidBridgeQLSettings, bridgeql_settings.validate)
+
+    @override_settings(BRIDGEQL_AUTHENTICATION_DECORATOR='server.auth.same_sunbet1')
+    def test_valid_module_invalid_auth_decorator(self):
+        self.assertRaises(InvalidBridgeQLSettings, bridgeql_settings.validate)
+
+    @override_settings(BRIDGEQL_AUTHENTICATION_DECORATOR='server.auth.same_sunbet')
+    def test_valid_auth_decorator(self):
+        self.assertTrue(bridgeql_settings.validate())

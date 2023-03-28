@@ -6,6 +6,7 @@ from django.apps import apps
 from django.conf import settings
 
 from bridgeql.django.exceptions import InvalidBridgeQLSettings, InvalidAppOrModelName
+from bridgeql.utils import load_function
 
 
 DEFAULTS = {
@@ -51,6 +52,16 @@ class BridgeQLSettings:
             except (ValueError, LookupError, AttributeError):
                 raise InvalidAppOrModelName('Invalid model %s in settings.BRIDGEQL_RESTRICTED_MODELS'
                                             % restricted_model)
+
+        # check for the valid auth decorator
+        if self.BRIDGEQL_AUTHENTICATION_DECORATOR:
+            try:
+                load_function(self.BRIDGEQL_AUTHENTICATION_DECORATOR)
+            except (AttributeError, ImportError) as e:
+                raise InvalidBridgeQLSettings(
+                    'Wrong value for settings.BRIDGEQL_AUTHENTICATION_DECORATOR %s'
+                    % self.BRIDGEQL_AUTHENTICATION_DECORATOR
+                )
         return True
 
 
