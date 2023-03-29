@@ -5,7 +5,7 @@
 from django.apps import apps
 from django.conf import settings
 
-from bridgeql.django.exceptions import InvalidBridgeQLSettings, InvalidAppOrModelName
+from bridgeql.django.exceptions import InvalidBridgeQLSettings, InvalidAppOrModelName, InvalidModelFieldName
 
 
 DEFAULTS = {
@@ -43,13 +43,22 @@ class BridgeQLSettings:
             raise InvalidBridgeQLSettings(
                 'BRIDGEQL_RESTRICTED_MODELS requires dict value')
 
-        for restricted_model in restricted_models.keys():
+        for model in restricted_models.keys():
             try:
-                app_name, model_name = restricted_model.split('.', 1)
-                _ = apps.get_model(app_name, model_name)
-            except (ValueError, LookupError, AttributeError):
+                app_name, model_name = str(model).split('.', 1)
+                model_obj = apps.get_model(app_name, model_name)
+                if isinstance(restricted_models[model], list):
+                    for field_name in restricted_models[model]:
+                        # fail fast in case attribute is not found
+                        getattr(model_obj, field_name)
+                elif not isinstance(restricted_models[model], bool):
+                    raise AttributeError
+            except (ValueError, LookupError):
                 raise InvalidAppOrModelName('Invalid model %s in settings.BRIDGEQL_RESTRICTED_MODELS'
-                                            % restricted_model)
+                                            % model)
+            except AttributeError:
+                raise InvalidModelFieldName(
+                    'Invalid one or more fields %s in settings.BRIDGEQL_RESTRICTED_MODELS.' % restricted_models[model])
         return True
 
 

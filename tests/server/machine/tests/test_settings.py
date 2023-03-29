@@ -4,7 +4,7 @@
 
 from django.test import TestCase, override_settings
 
-from bridgeql.django.exceptions import InvalidBridgeQLSettings, InvalidAppOrModelName
+from bridgeql.django.exceptions import InvalidBridgeQLSettings, InvalidAppOrModelName, InvalidModelFieldName
 from bridgeql.django.settings import bridgeql_settings
 
 
@@ -38,7 +38,10 @@ class TestSettings(TestCase):
                 'machine.Machine': ['ip1'],
             }
         ]
-        pass
+        for model in valid_model_invalid_fields:
+            with self.settings(BRIDGEQL_RESTRICTED_MODELS=model):
+                self.assertRaises(InvalidModelFieldName,
+                                  bridgeql_settings.validate)
 
     def test_valid_restricted_models(self):
         valid_models = [
