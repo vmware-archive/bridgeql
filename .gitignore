@@ -1,6 +1,7 @@
 # Ignore everything in this directory
 # Except this file
 !.gitignore
+.idea
 docs/_build
 static-files
 __pycache__
