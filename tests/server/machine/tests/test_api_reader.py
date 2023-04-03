@@ -223,6 +223,19 @@ class TestAPIReader(TestCase):
         self.assertEqual(resp.status_code, 403)
         self.assertFalse(resp.json()['success'])
 
+    def test_restricted_fk_field(self):
+        self.params = {
+            'app_name': 'machine',
+            'model_name': 'Machine',
+            'filter': {
+                'name__startswith': 'machine-name-',
+            },
+            'fields': ['os__license_key', 'name'],
+        }
+        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        self.assertEqual(resp.status_code, 403)
+        self.assertFalse(resp.json()['success'])
+
     def test_non_restricted_field(self):
         self.params = {
             'app_name': 'machine',
@@ -232,11 +245,9 @@ class TestAPIReader(TestCase):
             },
             'fields': ['name', 'arch'],
         }
-        # resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
-        # self.assertEqual(resp.status_code, 200)
-        # resp_json = resp.json()
-        # self.assertTrue(resp_json['success'])
-        pass
+        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(resp.json()['success'])
 
     def test_invalid_model_name(self):
         self.params = {

@@ -2,6 +2,8 @@
 # Copyright © 2023 VMware, Inc.  All rights reserved.
 # SPDX-License-Identifier: BSD-2-Clause
 
+from collections import Iterable
+
 from django.apps import apps
 from django.conf import settings
 
@@ -46,11 +48,12 @@ class BridgeQLSettings:
             raise InvalidBridgeQLSettings(
                 'BRIDGEQL_RESTRICTED_MODELS requires dict value')
 
+        # validate restricted fields
         for model in restricted_models.keys():
             try:
                 app_name, model_name = str(model).split('.', 1)
                 model_obj = apps.get_model(app_name, model_name)
-                if isinstance(restricted_models[model], list):
+                if isinstance(restricted_models[model], (list, tuple)):
                     for field_name in restricted_models[model]:
                         # fail fast in case attribute is not found
                         getattr(model_obj, field_name)
