@@ -151,14 +151,12 @@ class ModelBuilder(object):
 
         self.model_config = ModelConfig(
             self.params.app_name, self.params.model_name)
-        self.model_config.validate_fields(set(
-            [
-                *extract_keys(self.params.filter),
-                *extract_keys(self.params.exclude),
-                *self.params.fields,
-                *self.params.order_by
-            ]
-        ))
+        requested_fields = list()
+        requested_fields.extend(extract_keys(self.params.filter))
+        requested_fields.extend(extract_keys(self.params.exclude))
+        requested_fields.extend(self.params.fields)
+        requested_fields.extend(self.params.order_by)
+        self.model_config.validate_fields(set(requested_fields))
 
     def _apply_opts(self):
         for opt, qset_opt in ModelBuilder._QUERYSET_OPTS:

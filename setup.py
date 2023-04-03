@@ -10,7 +10,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="bridgeql",
-    version="0.1.8-beta",
+    version="0.1.9-beta",
     author="Piyus Kumar",
     author_email="piyusk@vmware.com",
     description="Query language to bridge the gap between REST API and ORM capability",
