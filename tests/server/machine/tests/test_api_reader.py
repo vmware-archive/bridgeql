@@ -208,9 +208,7 @@ class TestAPIReader(TestCase):
         }
         resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 403)
-        resp_json = resp.json()
-        # print(resp_json['message'])
-        self.assertFalse(resp_json['success'])
+        self.assertFalse(resp.json()['success'])
 
     def test_restricted_field(self):
         self.params = {
@@ -265,3 +263,17 @@ class TestAPIReader(TestCase):
         resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 400)
         self.assertFalse(resp.json()['success'])
+
+    @override_settings(BRIDGEQL_AUTHENTICATION_DECORATOR='server.auth.localtest')
+    def test_custom_auth_decorator(self):
+        self.params = {
+            'app_name': 'machine',
+            'model_name': 'Machine',
+            'filter': {
+                'pk__lte': 4,
+            },
+            'fields': ['name', 'os__arch']
+        }
+        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(4, len(resp.json()['data']))

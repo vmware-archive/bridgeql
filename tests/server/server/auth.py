@@ -4,12 +4,16 @@
 
 from django.http import HttpResponse
 
+from bridgeql.utils import local_ip_hostname, get_client_ip
 
-def same_sunbet(api):
+
+def localtest(api):
     def wrap(request, *args, **kwargs):
-        ip = request.META.get('REMOTE_ADDR', '')
-        if ip.startswith('10.107'):
-            print('Request for URL %s succeeded from %s' % (request.path, ip))
+        ip = get_client_ip(request)
+        local_ip, hostname = local_ip_hostname()
+        if ip == '127.0.0.1':  # Allowed only for local IP
+            print('Request for URL %s succeeded from %s/%s'
+                  % (request.path, ip, local_ip))
             return api(request, *args, **kwargs)
         response = HttpResponse(status=401)
         response['WWW-Authenticate'] = 'Unkonwn request source %s' % (ip)

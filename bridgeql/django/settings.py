@@ -7,6 +7,7 @@ from django.conf import settings
 
 from bridgeql.django.exceptions import InvalidBridgeQLSettings, InvalidAppOrModelName, InvalidModelFieldName
 from bridgeql.utils import load_function
+import os
 
 
 DEFAULTS = {
@@ -81,6 +82,14 @@ class BridgeQLSettings:
             self._validate_restricted_models() and
             self._validate_auth_decorator()
         )
+
+    def get_local_apps(self):
+        local_apps = []
+        project_root = os.path.abspath(settings.BASE_DIR)
+        for app in apps.get_app_configs():
+            if os.path.dirname(app.path) == project_root:
+                local_apps.append(app.label)
+        return local_apps
 
 
 bridgeql_settings = BridgeQLSettings()

@@ -64,10 +64,13 @@ class TestSettings(TestCase):
     def test_invalid_auth_decorator(self):
         self.assertRaises(InvalidBridgeQLSettings, bridgeql_settings.validate)
 
-    @override_settings(BRIDGEQL_AUTHENTICATION_DECORATOR='server.auth.same_sunbet1')
+    @override_settings(BRIDGEQL_AUTHENTICATION_DECORATOR='server.auth.localtest1')
     def test_valid_module_invalid_auth_decorator(self):
         self.assertRaises(InvalidBridgeQLSettings, bridgeql_settings.validate)
 
-    @override_settings(BRIDGEQL_AUTHENTICATION_DECORATOR='server.auth.same_sunbet')
+    @override_settings(BRIDGEQL_AUTHENTICATION_DECORATOR='server.auth.localtest')
     def test_valid_auth_decorator(self):
         self.assertTrue(bridgeql_settings.validate())
+
+    def test_list_local_apps(self):
+        self.assertListEqual(bridgeql_settings.get_local_apps(), ['machine'])

@@ -1,9 +1,33 @@
 import base64
 import importlib
 import json
+import socket
 import sys
 
 PY_VERSION = sys.version_info.major
+
+
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+
+
+def local_ip_hostname():
+    hostname = socket.getfqdn()
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        # doesn't even have to be reachable
+        s.connect(('192.255.255.255', 1))
+        ip_address = s.getsockname()[0]
+    except:
+        ip_address = '127.0.0.1'
+    finally:
+        s.close()
+    return ip_address, hostname
 
 
 def b64encode(data):
