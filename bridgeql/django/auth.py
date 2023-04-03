@@ -9,7 +9,7 @@ from bridgeql.django.settings import bridgeql_settings
 from bridgeql.utils import b64decode, load_function
 
 
-def simple_auth(api):
+def basic_auth(api):
     def wrap(request, *args, **kwargs):
         auth = request.META.get('HTTP_AUTHORIZATION', '')
         if auth and len(auth.split()) == 2:
@@ -25,10 +25,8 @@ def simple_auth(api):
     return wrap
 
 
-if bridgeql_settings.BRIDGEQL_AUTHENTICATION_DECORATOR is False:
-    def auth_decorator(func): return func
-elif bridgeql_settings.BRIDGEQL_AUTHENTICATION_DECORATOR:
+if bridgeql_settings.BRIDGEQL_AUTHENTICATION_DECORATOR:
     auth_decorator = load_function(
         bridgeql_settings.BRIDGEQL_AUTHENTICATION_DECORATOR)
 else:
-    auth_decorator = simple_auth
+    def auth_decorator(func): return func
