@@ -12,7 +12,7 @@ jobs:
       - name: Move to project directory
         run: cd ${{ github.workspace }}
       - name: upgrade pip library
-        run: apt-get upgrade python-virtualenv
+        run: sudo apt-get upgrade python-virtualenv
       - name: Make tests
         run: make test
       - name: swtich to virtual enironment and run tox
