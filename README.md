@@ -147,7 +147,7 @@ as an open-source patch. For more detailed information, refer to [CONTRIBUTING_D
 ## Authors
 
 Created and maintained by\
-Piyus Kumar <piyusk@vmware.com>\
-Priyank Singh <priyanksi@vmware.com>
+[Piyus Kumar](https://github.com/piyusgupta)\
+[Priyank Singh](https://github.com/preyunk)
 
 Copyright © 2023, VMware, Inc.  All rights reserved.
