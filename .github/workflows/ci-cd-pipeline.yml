@@ -1,11 +1,21 @@
-name : linter
+name : test-and-build
 
 on: push
 
 jobs:
-  lint:
-    name: lint all code base
+  test-build:
+    name: test and build the package
     runs-on: ubuntu-latest
     steps:
       - name: checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+      - name: Move to project directory
+        run: cd ${{ github.workspace }}
+      - name: Make tests
+        run: make run
+      - name: swtich to virtual enironment and run tox
+        run: source venv/bin/activate && tox
+      - name: Upgrage build to latest version
+        run: python -m pip install --upgrade build
+      - name: run library module as a script 
+        run: python -m build
