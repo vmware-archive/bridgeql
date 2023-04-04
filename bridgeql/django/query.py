@@ -39,3 +39,15 @@ def construct_query(selector):
         for f in or_filter:
             query.add(construct_query(f), conn_type=Q.OR)
     return query & Q(**dict(selector))
+
+
+def extract_keys(query_dict):
+    exclusion = ('__or',)
+    keys = []
+    for key, val in query_dict.items():
+        if key not in exclusion:
+            keys.append(key)
+        else:
+            for nested_dict in val:
+                keys.extend(extract_keys(nested_dict))
+    return keys

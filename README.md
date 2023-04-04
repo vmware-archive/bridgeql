@@ -39,13 +39,15 @@ Another change required is to add a url to your existing project as
 
 INSTALLED_APPS = [
     ...
-    'bridgeql'
+    'bridgeql',
     ...
     ]
 
 ```
 
-On your project you can edit `urls.py`, to include the `bridgeql` urls.
+**URLs Configuration**
+
+In your project you can edit `urls.py`, to include the `bridgeql` urls.
 
 ```python
 from bridgeql.django import urls as bridgeql_urls
@@ -61,7 +63,7 @@ urlpatterns = [
 This way your app will be ready to serve the REST API to expose model query, you can request an API like follows:
 ```python
     params = {
-       'using': 'db1',
+       'db_name': 'db1',
        'app_name': 'machine', # required
        'model_name': 'Machine', # required
        'filter': {
@@ -76,7 +78,7 @@ This way your app will be ready to serve the REST API to expose model query, you
         'offset': 10, # default 0
     }
     api_url = '<yoursite.com>/api/bridgeql/dj_read'
-    resp = make_post_api_call(api_url, {'payload': json.dumps(params))
+    resp = make_get_api_call(api_url, {'payload': json.dumps(params)})
     result = resp.json()
 ```
 
@@ -90,6 +92,40 @@ Machine.objects.using('db1')
                 .order_by('ip')[10:15] # offset: offset + limit
 ```
 
+____
+### BridgeQL Settings
+
+Settings available in `BridgeQL` and their default values
+
+**BRIDGEQL_RESTRICTED_MODELS**
+
+Default: `{}` (Empty dictionary)
+
+Dictionary mapping **app_label.model_name** strings to list/bool(True). The value represents list of fields to be restricted for the model as provided in key. If the value is set to `True`, all the fields of that model will be restricted to lookup.
+
+```python
+BRIDGEQL_RESTRICTED_MODELS = {
+    'auth.User': True,
+    'machine.OperatingSystem': ['license_key'],
+}
+```
+______
+
+**BRIDGEQL_AUTHENTICATION_DECORATOR**
+
+Default: `''` (Empty string)
+
+Above setting allows you to use an authentication decorator to authenticate your client's requests.
+You can provide a custom authentication decorator whichever suits your application usecase, e.g login_required, same_subnet, etc.
+
+Default value for `BRIDGEQL_AUTHENTICATION_DECORATOR` will allow you to access API without authentication.
+
+```python
+BRIDGEQL_AUTHENTICATION_DECORATOR = 'bridgeql.auth.basic_auth'
+```
+
+`bridgeql.auth.basic_auth` is available as a basic authentication method where you can pass authorization header as `Authorization: Basic base64(username:password)` for each request.
+____
 
 ### Build & Run
 
@@ -111,7 +147,7 @@ as an open-source patch. For more detailed information, refer to [CONTRIBUTING_D
 ## Authors
 
 Created and maintained by\
-Piyus Kumar <piyusk@vmware.com>\
-Priyank Singh <priyanksi@vmware.com>
+[Piyus Kumar](https://github.com/piyusgupta)\
+[Priyank Singh](https://github.com/preyunk)
 
 Copyright © 2023, VMware, Inc.  All rights reserved.
