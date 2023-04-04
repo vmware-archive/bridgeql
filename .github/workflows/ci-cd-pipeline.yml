@@ -12,7 +12,7 @@ jobs:
       - name: Move to project directory
         run: cd ${{ github.workspace }}
       - name: Make tests
-        run: make run
+        run: make test
       - name: swtich to virtual enironment and run tox
         run: source venv/bin/activate && tox
       - name: Upgrage build to latest version
