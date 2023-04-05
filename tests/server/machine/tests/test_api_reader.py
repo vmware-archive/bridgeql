@@ -27,12 +27,26 @@ class TestAPIReader(TestCase):
             'filter': {
                 'name': 'machine-name-1'
             },
-            'fields': ['ip', 'name', 'created_at']
+            'fields': ['ip', 'name', 'created_at', 'stats']
         }
         resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
         resp_json = resp.json()
         self.assertEqual(resp_json['data'][0]['ip'], "10.0.0.1")
+
+    def test_get_os(self):
+        self.params = {
+            'app_name': 'machine',
+            'model_name': 'OperatingSystem',
+            'filter': {
+                'name': 'os-name-1'
+            },
+            'fields': ['arch', 'full_name']
+        }
+        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        self.assertEqual(resp.status_code, 200)
+        resp_json = resp.json()
+        self.assertEqual(resp_json['data'][0]['arch'], "arch-name-1")
 
     def test_or_query(self):
         self.params = {
