@@ -77,12 +77,6 @@ class ModelConfig(object):
     def _get_fields(self):
         return set([f.name for f in self.model._meta.get_fields()])
 
-    def get_restricted_fields_in(self, fields):
-        return self.restricted_fields.intersection(set(fields))
-
-    def is_restricted(self, fields):
-        return bool(self.get_restricted_fields_in(fields))
-
     def _get_restricted_fields(self):
         # get from settings
         restricted_fields = bridgeql_settings.BRIDGEQL_RESTRICTED_MODELS.get(
@@ -129,10 +123,12 @@ class ModelConfig(object):
                     else:
                         break
                 except FieldDoesNotExist:
-                    raise InvalidModelFieldName(
-                        'Invalid field name %s for model %s.' %
-                        (field_obj.name, parent.full_model_name)
-                    )
+                    has_prop = hasattr(parent.model, field_obj.name)
+                    if not has_prop:
+                        raise InvalidModelFieldName(
+                            'Invalid field name %s for model %s.' %
+                            (field_obj.name, parent.full_model_name)
+                        )
         return True
 
 

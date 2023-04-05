@@ -10,6 +10,10 @@ class OperatingSystem(models.Model):
     arch = models.CharField(max_length=16)
     license_key = models.UUIDField(null=True)
 
+    @property
+    def full_name(self):
+        return "%s-%s" % (self.name, self.arch)
+
     def __unicode__(self):
         return self.name
 
