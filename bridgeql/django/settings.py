@@ -40,9 +40,6 @@ class BridgeQLSettings:
         }
         """
         restricted_models = self.BRIDGEQL_RESTRICTED_MODELS
-        # restricted models in None
-        if not restricted_models:
-            return True
 
         if not isinstance(restricted_models, dict):
             raise InvalidBridgeQLSettings(
