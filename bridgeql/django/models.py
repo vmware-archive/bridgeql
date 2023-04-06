@@ -108,6 +108,7 @@ class ModelConfig(object):
     def validate_fields(self, query_fields):
         # combination of all fields used in query
         for q_field in query_fields:
+            print(q_field)
             parent = self
             for field in q_field.split('__'):
                 field_obj = Field(parent, field)
@@ -123,12 +124,11 @@ class ModelConfig(object):
                     else:
                         break
                 except FieldDoesNotExist:
-                    has_prop = hasattr(parent.model, field_obj.name)
-                    if not has_prop:
-                        raise InvalidModelFieldName(
-                            'Invalid field name %s for model %s.' %
-                            (field_obj.name, parent.full_model_name)
-                        )
+                    if hasattr(parent.model, field_obj.name):
+                        prop_obj = Field(parent, field_obj.name)
+                        if prop_obj.is_restricted:
+                            raise ForbiddenModelOrField('%s is restricted for model %s' %
+                                                        (prop_obj.name, parent.full_model_name))
         return True
 
 
