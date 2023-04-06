@@ -289,6 +289,18 @@ class TestAPIReader(TestCase):
         self.assertEqual(resp.status_code, 400)
         self.assertFalse(resp.json()['success'])
 
+    def test_model_isnull(self):
+        self.params = {
+            'app_name': 'machine',
+            'model_name': 'Machine',
+            'filter': {
+                'os__isnull': True,
+            },
+            'fields': ['name', 'arch'],
+        }
+        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        self.assertEqual(resp.status_code, 200)
+
     @override_settings(BRIDGEQL_AUTHENTICATION_DECORATOR='server.auth.localtest')
     def test_custom_auth_decorator(self):
         self.params = {

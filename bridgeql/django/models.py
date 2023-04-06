@@ -123,12 +123,11 @@ class ModelConfig(object):
                     else:
                         break
                 except FieldDoesNotExist:
-                    has_prop = hasattr(parent.model, field_obj.name)
-                    if not has_prop:
-                        raise InvalidModelFieldName(
-                            'Invalid field name %s for model %s.' %
-                            (field_obj.name, parent.full_model_name)
-                        )
+                    if hasattr(parent.model, field_obj.name):
+                        prop_obj = Field(parent, field_obj.name)
+                        if prop_obj.is_restricted:
+                            raise ForbiddenModelOrField('%s is restricted for model %s' %
+                                                        (prop_obj.name, parent.full_model_name))
         return True
 
 
