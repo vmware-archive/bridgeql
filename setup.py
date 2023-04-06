@@ -2,19 +2,29 @@
 # Copyright © 2023 VMware, Inc.  All rights reserved.
 # SPDX-License-Identifier: BSD-2-Clause
 
+import os
+import re
 import setuptools
 
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
+def read(f):
+    return open(f, 'r').read()
+
+
+def get_version(package):
+    init_py = read(os.path.join(package, '__init__.py'))
+    return re.search("__version__ = ['\"]([^'\"]+)['\"]", init_py).group(1)
+
+
+version = get_version('bridgeql')
 
 setuptools.setup(
     name="bridgeql",
-    version="0.1.11",
+    version=version,
     author="Piyus Kumar",
     author_email="piyusk@vmware.com",
     description="Query language to bridge the gap between REST API and ORM capability",
-    long_description=long_description,
+    long_description=read("README.md"),
     long_description_content_type="text/markdown",
     license='BSD-2',
     platforms=['Any'],
@@ -41,9 +51,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3.9",
         "Topic :: Software Development :: Libraries :: Python Modules",
     },
-    packages=[
-        "bridgeql",
-        "bridgeql.django",
-    ],
+    packages=setuptools.find_packages(exclude=['tests*']),
+    package_data={'': ['templates/**/*.html']},
     python_requires=">=2.7"
 )
