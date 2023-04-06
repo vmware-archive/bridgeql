@@ -2,8 +2,6 @@
 # Copyright © 2023 VMware, Inc.  All rights reserved.
 # SPDX-License-Identifier: BSD-2-Clause
 
-from collections import Iterable
-
 from django.apps import apps
 from django.conf import settings
 
