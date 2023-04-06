@@ -108,7 +108,6 @@ class ModelConfig(object):
     def validate_fields(self, query_fields):
         # combination of all fields used in query
         for q_field in query_fields:
-            print(q_field)
             parent = self
             for field in q_field.split('__'):
                 field_obj = Field(parent, field)
