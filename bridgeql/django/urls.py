@@ -9,9 +9,11 @@ except ImportError:
 
 from bridgeql.django.bridge import read_django_model
 from bridgeql.django.settings import bridgeql_settings
+from bridgeql.django.views import index
 
 bridgeql_settings.validate()
 
 urlpatterns = [
-    path('dj_read/', read_django_model, name='bridgeql_django_read'),
+    path('^dj_read/', read_django_model, name='bridgeql_django_read'),
+    path('', index, name='bridgeql_django_index'),
 ]
