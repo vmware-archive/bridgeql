@@ -4,7 +4,11 @@
 
 from django.test import TestCase, override_settings
 
-from bridgeql.django.exceptions import InvalidBridgeQLSettings, InvalidAppOrModelName, InvalidModelFieldName
+from bridgeql.django.exceptions import (
+    InvalidAppOrModelName,
+    InvalidBridgeQLSettings,
+    InvalidModelFieldName
+)
 from bridgeql.django.settings import bridgeql_settings
 
 
