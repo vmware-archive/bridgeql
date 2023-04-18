@@ -67,6 +67,15 @@ class Field(object):
         return (self.name in self.model_config.restricted_fields)
 
 
+class FieldAttributes(object):
+
+    def __init__(self, name, is_null, field_type, help_text):
+        self.field_name = name
+        self.is_null = is_null
+        self.field_type = field_type
+        self.help_text = help_text
+
+
 class ModelConfig(object):
     def __init__(self, app_name, model_name):
         self.app_name = app_name
@@ -74,9 +83,26 @@ class ModelConfig(object):
         self.restricted_fields = self._get_restricted_fields()
         self.model = self._get_model()  # restricted_fields list to set
         self.fields = self._get_fields()
+        self.fields_attrs = {}
+
+    def get_fields_attrs(self):
+        _restricted_fields = self._get_restricted_fields()
+        for field in self.model._meta.local_fields:
+            if field.name not in _restricted_fields:
+                self.fields_attrs[field.name] = FieldAttributes(
+                    field.name, field.null, field.get_internal_type(), field.help_text)
+
+        for _property in self.get_properties():
+            if _property not in _restricted_fields:
+                self.fields_attrs[_property] = FieldAttributes(
+                    _property, None, "ReadOnly Propery", None)
+        return self.fields_attrs
 
     def _get_fields(self):
-        return set([f.name for f in self.model._meta.get_fields()])
+        return set([f.name for f in self.model._meta.local_fields])
+
+    def get_properties(self):
+        return set(self.model._meta._property_names) - {'pk'}
 
     def _get_restricted_fields(self):
         # get from settings

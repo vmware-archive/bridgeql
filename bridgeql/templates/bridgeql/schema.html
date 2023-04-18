@@ -1,0 +1,105 @@
+<!--
+# -*- coding: utf-8 -*-
+# Copyright © 2023 VMware, Inc.  All rights reserved.
+# SPDX-License-Identifier: BSD-2-Clause
+-->
+
+<html>
+  <head>
+  <style>
+    table, th, td {
+    border: 1px solid white;
+    }
+    th, td {
+     background-color: #96D4D4;
+    }
+</style>
+    <title>
+    BridgqQL - App Model Schema
+    </title>
+  </head>
+  <body>
+    <h1>
+    </h1>
+    <table style="width:75%"> 
+    <tr>
+        <th> App Name </th>
+        <th> Model Name and fields </th>
+    </tr>
+
+    {% for app_name, model_info in model_info.items %}
+    <tr>
+        <td> <b> {{ app_name }} </b> </td>
+
+        <td>
+        <table style="width:100%">
+        {% for model, fields in model_info.items %}
+            <tr> 
+                <td> <b> {{ model }} </b> </td> 
+
+                <td>
+                    <table style="width:100%">
+                        {% for field , f_attrs in fields.items %}
+                            {% if forloop.first %}
+                                <tr> 
+                                <th> Name </th>
+                                <th> Mandatory </th>
+                                <th> Field type </th>
+                                <th> Help text</th>
+                                </tr>
+                            {% endif %}
+                                <tr> 
+                                <td> {{ f_attrs.field_name }} </td>
+                                <td> {% if f_attrs.is_null %} No {% else %} Yes {% endif %} </td>
+                                <td> {{ f_attrs.field_type }} </td>
+                                <td> {{ f_attrs.help_text }} </td>
+                                <tr> 
+                        {% endfor %}
+                    </table>
+               </td>
+
+            </tr>
+        {% endfor %}
+        </table>
+        </td>
+
+    </tr>
+    {% endfor %}
+
+
+
+
+    {% comment %}
+
+
+    {% for app_name, model_info in model_info.items %}
+    {{ app_name }}
+
+    <tr> 
+    <td> {{ app_name }} </td> 
+    </tr>
+
+    <!-- Models in different rows -->
+
+    {% for model, fields in model_info.items %}
+    <tr> 
+
+    <td> {{ model }} </td> 
+    <td> {{  fields }} </td> 
+
+    </tr>
+    {% endfor %}
+
+
+
+    </tr>
+    {% endfor %}
+
+
+
+    {% endcomment %}
+    </table>
+
+    </p>
+  </body>
+</html>
