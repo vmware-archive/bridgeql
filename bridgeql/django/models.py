@@ -12,7 +12,8 @@ from bridgeql.django.exceptions import (
     ForbiddenModelOrField,
     InvalidRequest,
     InvalidAppOrModelName,
-    InvalidModelFieldName
+    InvalidModelFieldName,
+    InvalidQueryException,
 )
 from bridgeql.django.query import construct_query, extract_keys
 from bridgeql.django.settings import bridgeql_settings
@@ -168,8 +169,11 @@ class ModelBuilder(object):
                     self.qset = self._add_fields()
                 else:
                     self.qset = func(*value)
-            else:
+            elif value:
                 self.qset = func()
+            else:
+                raise InvalidQueryException('Invalid type %s for %s'
+                                            % (type(value), value))
 
     def query_has_properties(self):
         # TODO show error if distinct is True and properties are present in fields
@@ -179,7 +183,9 @@ class ModelBuilder(object):
 
     def _add_fields(self):
         qset_values = DBRows()
-        self.print_db_query_log()
+        self.qset = self.qset.select_related()
+        logger.debug('Request parameters: %s \nQuery: %s\n',
+                     self.params.params, self.qset.query)
         for row in self.qset:
             model_fields = {}
             for field in self.params.fields:
@@ -189,7 +195,7 @@ class ModelBuilder(object):
                         attr = getattr(attr, ref)
                     except AttributeError:
                         raise InvalidModelFieldName(
-                            'Invalid query for field %s.' % ref)
+                            'Invalid query for field %s in %s.' % (ref, attr))
                 model_fields[field] = attr
             qset_values.append(model_fields)
         return qset_values
@@ -205,17 +211,15 @@ class ModelBuilder(object):
         else:
             self.qset = self.model_config.model.objects.filter(query)
         self._apply_opts()
-        # handle limit and offset seperately
+        # handle limit and offset separately
         if self.params.limit:
             self.qset = self.qset[self.params.offset:
                                   self.params.offset + self.params.limit]
         if isinstance(self.qset, QuerySet):
-            self.print_db_query_log()
+            logger.debug('Request parameters: %s \nQuery: %s\n',
+                         self.params.params, self.qset.query)
             return list(self.qset)
         return self.qset
 
-    def print_db_query_log(self):
-        logger.debug('Request parameters: %s \nQuery: %s',
-                     self.params.params, self.qset.query)
 
 # query -> normal fields, foreign key reference
