@@ -36,20 +36,3 @@ def read_django_model(request):
     except Exception as e:
         res = {'data': [], 'message': str(e), 'success': False}
         return JSONResponse(res, status=500)
-
-    """
-    args = {
-        selector: {
-            and: [1,2,3],
-            or: [1,2,3],
-        },
-        values: [],
-        orderby: [],
-        exclude: {
-            buildid: 111
-        },
-        extras: {
-            buildtree_url: []
-        }
-    }
-    """

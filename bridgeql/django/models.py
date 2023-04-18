@@ -12,7 +12,8 @@ from bridgeql.django.exceptions import (
     ForbiddenModelOrField,
     InvalidRequest,
     InvalidAppOrModelName,
-    InvalidModelFieldName
+    InvalidModelFieldName,
+    InvalidQueryException,
 )
 from bridgeql.django.query import construct_query, extract_keys
 from bridgeql.django.settings import bridgeql_settings
@@ -159,11 +160,11 @@ class ModelConfig(object):
 
 class ModelBuilder(object):
     _QUERYSET_OPTS = [
-        ('exclude', 'exclude'),  # dict
-        ('distinct', 'distinct'),  # bool
-        ('order_by', 'order_by'),  # list
-        ('fields', 'values'),  # list
-        ('count', 'count'),  # bool
+        ('exclude', 'exclude', dict),  # dict
+        ('distinct', 'distinct', bool),  # bool
+        ('order_by', 'order_by', list),  # list
+        ('fields', 'values', list),  # list
+        ('count', 'count', bool),  # bool
     ]
 
     def __init__(self, params):
@@ -180,11 +181,15 @@ class ModelBuilder(object):
         self.model_config.validate_fields(set(requested_fields))
 
     def _apply_opts(self):
-        for opt, qset_opt in ModelBuilder._QUERYSET_OPTS:
+        for opt, qset_opt, opt_type in ModelBuilder._QUERYSET_OPTS:
             func = getattr(self.qset, qset_opt)
             value = getattr(self.params, opt, None)
             if not value:
                 continue
+            if not isinstance(value, opt_type):
+                raise InvalidQueryException('Invalid type %s for %s'
+                                            ' expected %s'
+                                            % (type(value), opt, opt_type))
             if isinstance(value, dict):
                 self.qset = func(**value)
             elif isinstance(value, list):
@@ -194,7 +199,7 @@ class ModelBuilder(object):
                     self.qset = self._add_fields()
                 else:
                     self.qset = func(*value)
-            else:
+            elif value:
                 self.qset = func()
 
     def query_has_properties(self):
@@ -205,7 +210,9 @@ class ModelBuilder(object):
 
     def _add_fields(self):
         qset_values = DBRows()
-        self.print_db_query_log()
+        self.qset = self.qset.select_related()
+        logger.debug('Request parameters: %s \nQuery: %s\n',
+                     self.params.params, self.qset.query)
         for row in self.qset:
             model_fields = {}
             for field in self.params.fields:
@@ -213,9 +220,11 @@ class ModelBuilder(object):
                 for ref in field.split('__'):
                     try:
                         attr = getattr(attr, ref)
+                        if attr is None:
+                            break
                     except AttributeError:
                         raise InvalidModelFieldName(
-                            'Invalid query for field %s.' % ref)
+                            'Invalid query for field %s in %s.' % (ref, attr))
                 model_fields[field] = attr
             qset_values.append(model_fields)
         return qset_values
@@ -231,17 +240,15 @@ class ModelBuilder(object):
         else:
             self.qset = self.model_config.model.objects.filter(query)
         self._apply_opts()
-        # handle limit and offset seperately
+        # handle limit and offset separately
         if self.params.limit:
             self.qset = self.qset[self.params.offset:
                                   self.params.offset + self.params.limit]
         if isinstance(self.qset, QuerySet):
-            self.print_db_query_log()
+            logger.debug('Request parameters: %s \nQuery: %s\n',
+                         self.params.params, self.qset.query)
             return list(self.qset)
         return self.qset
 
-    def print_db_query_log(self):
-        logger.debug('Request parameters: %s \nQuery: %s',
-                     self.params.params, self.qset.query)
 
 # query -> normal fields, foreign key reference
