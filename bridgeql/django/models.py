@@ -157,6 +157,19 @@ class ModelConfig(object):
         return True
 
 
+class ModelObject(object):
+    def __init__(self, app_label, model_name):
+        self.model_config = ModelConfig(app_label, model_name)
+
+    def update(self, pk, params):
+        # check if there are any restricted fields in data
+        obj = self.model_config.model.objects.get(pk=pk)
+        for key, val in params.items():
+            setattr(obj, key, val)
+        obj.save()
+        return obj
+
+
 class ModelBuilder(object):
     _QUERYSET_OPTS = [
         ('exclude', 'exclude'),  # dict

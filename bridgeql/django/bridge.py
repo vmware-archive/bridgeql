@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 import json
-from django.views.decorators.http import require_GET
-
+from django.views.decorators.http import require_GET, require_POST
+from django.core.exceptions import ObjectDoesNotExist
 
 from bridgeql.django.auth import auth_decorator
 from bridgeql.django.exceptions import (
@@ -12,7 +12,7 @@ from bridgeql.django.exceptions import (
     InvalidRequest
 )
 from bridgeql.django.helpers import JSONResponse
-from bridgeql.django.models import ModelBuilder
+from bridgeql.django.models import ModelBuilder, ModelObject
 
 # TODO refine error handling
 
@@ -37,19 +37,27 @@ def read_django_model(request):
         res = {'data': [], 'message': str(e), 'success': False}
         return JSONResponse(res, status=500)
 
-    """
-    args = {
-        selector: {
-            and: [1,2,3],
-            or: [1,2,3],
-        },
-        values: [],
-        orderby: [],
-        exclude: {
-            buildid: 111
-        },
-        extras: {
-            buildtree_url: []
-        }
-    }
-    """
+
+@auth_decorator
+@require_POST
+def update_django_model(request, app_label, model_name, pk):
+    params = request.POST.get('payload', None)
+    try:
+        params = json.loads(params)
+        mo = ModelObject(app_label, model_name)
+        obj = mo.update(pk, params)
+        res = {'data': obj.id, 'message': 'Updated fields %s' % (
+            ", ".join(params.keys())), 'success': True}
+        return JSONResponse(res)
+    except ObjectDoesNotExist as e:
+        res = {'data': [], 'message': str(e), 'success': False}
+        return JSONResponse(res, status=404)
+    except ForbiddenModelOrField as e:
+        res = {'data': [], 'message': str(e), 'success': False}
+        return JSONResponse(res, status=403)
+    except (AttributeError, InvalidRequest) as e:
+        res = {'data': [], 'message': str(e), 'success': False}
+        return JSONResponse(res, status=400)
+    except Exception as e:
+        res = {'data': [], 'message': str(e), 'success': False}
+        return JSONResponse(res, status=500)
