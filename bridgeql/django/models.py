@@ -188,7 +188,8 @@ class ModelBuilder(object):
                 continue
             if not isinstance(value, opt_type):
                 raise InvalidQueryException('Invalid type %s for %s'
-                                            % (type(value), value))
+                                            ' expected %s'
+                                            % (type(value), opt, opt_type))
             if isinstance(value, dict):
                 self.qset = func(**value)
             elif isinstance(value, list):
