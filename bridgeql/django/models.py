@@ -134,11 +134,11 @@ class ModelConfig(object):
 
 class ModelBuilder(object):
     _QUERYSET_OPTS = [
-        ('exclude', 'exclude'),  # dict
-        ('distinct', 'distinct'),  # bool
-        ('order_by', 'order_by'),  # list
-        ('fields', 'values'),  # list
-        ('count', 'count'),  # bool
+        ('exclude', 'exclude', dict),  # dict
+        ('distinct', 'distinct', bool),  # bool
+        ('order_by', 'order_by', list),  # list
+        ('fields', 'values', list),  # list
+        ('count', 'count', bool),  # bool
     ]
 
     def __init__(self, params):
@@ -155,11 +155,14 @@ class ModelBuilder(object):
         self.model_config.validate_fields(set(requested_fields))
 
     def _apply_opts(self):
-        for opt, qset_opt in ModelBuilder._QUERYSET_OPTS:
+        for opt, qset_opt, opt_type in ModelBuilder._QUERYSET_OPTS:
             func = getattr(self.qset, qset_opt)
             value = getattr(self.params, opt, None)
             if not value:
                 continue
+            if not isinstance(value, opt_type):
+                raise InvalidQueryException('Invalid type %s for %s'
+                                            % (type(value), value))
             if isinstance(value, dict):
                 self.qset = func(**value)
             elif isinstance(value, list):
@@ -171,9 +174,6 @@ class ModelBuilder(object):
                     self.qset = func(*value)
             elif value:
                 self.qset = func()
-            else:
-                raise InvalidQueryException('Invalid type %s for %s'
-                                            % (type(value), value))
 
     def query_has_properties(self):
         # TODO show error if distinct is True and properties are present in fields
@@ -193,6 +193,8 @@ class ModelBuilder(object):
                 for ref in field.split('__'):
                     try:
                         attr = getattr(attr, ref)
+                        if attr is None:
+                            break
                     except AttributeError:
                         raise InvalidModelFieldName(
                             'Invalid query for field %s in %s.' % (ref, attr))

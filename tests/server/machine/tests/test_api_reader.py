@@ -113,6 +113,21 @@ class TestAPIReader(TestCase):
         res_json = resp.json()
         self.assertEqual(10, res_json['data'])
 
+    def test_count_false_query(self):
+        self.params = {
+            'app_name': 'machine',
+            'model_name': 'Machine',
+            'filter': {
+                'os__name': 'os-name-5'
+            },
+            'fields': ['name'],
+            'count': False
+        }
+        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        self.assertEqual(resp.status_code, 200)
+        res_json = resp.json()
+        self.assertEqual(10, len(res_json['data']))
+
     def test_count_distinct_query(self):
         self.params = {
             'app_name': 'machine',
@@ -300,6 +315,20 @@ class TestAPIReader(TestCase):
         }
         resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
+
+    def test_invalid_query_type(self):
+        self.params = {
+            'app_name': 'machine',
+            'model_name': 'Machine',
+            'filter': {
+                'os__isnull': True,
+            },
+            'fields': ['name', 'arch'],
+            'count': 'yes_invalid'
+        }
+        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        self.assertEqual(resp.status_code, 400)
+        self.assertFalse(resp.json()['success'])
 
     @override_settings(BRIDGEQL_AUTHENTICATION_DECORATOR='server.auth.localtest')
     def test_custom_auth_decorator(self):
