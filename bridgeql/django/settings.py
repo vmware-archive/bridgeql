@@ -84,7 +84,8 @@ class BridgeQLSettings:
             self._validate_auth_decorator()
         )
 
-    def get_local_apps(self):
+    @classmethod
+    def get_local_apps(cls):
         local_apps = []
         project_root = os.path.abspath(settings.BASE_DIR)
         for app in apps.get_app_configs():
