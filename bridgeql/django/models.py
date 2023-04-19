@@ -160,11 +160,13 @@ class ModelConfig(object):
 
 class ModelBuilder(object):
     _QUERYSET_OPTS = [
-        ('exclude', 'exclude', dict),  # dict
-        ('distinct', 'distinct', bool),  # bool
-        ('order_by', 'order_by', list),  # list
-        ('fields', 'values', list),  # list
-        ('count', 'count', bool),  # bool
+        ('exclude', 'exclude', dict),
+        ('distinct', 'distinct', bool),
+        ('order_by', 'order_by', list),
+        ('offset', 'offset', int),
+        ('limit', 'limit', int),
+        ('fields', 'values', list),
+        ('count', 'count', bool),
     ]
 
     def __init__(self, params):
@@ -182,7 +184,8 @@ class ModelBuilder(object):
 
     def _apply_opts(self):
         for opt, qset_opt, opt_type in ModelBuilder._QUERYSET_OPTS:
-            func = getattr(self.qset, qset_opt)
+            # offset and limit operation will return None
+            func = getattr(self.qset, qset_opt, None)
             value = getattr(self.params, opt, None)
             if not value:
                 continue
@@ -199,7 +202,11 @@ class ModelBuilder(object):
                     self.qset = self._add_fields()
                 else:
                     self.qset = func(*value)
-            elif value:
+            elif qset_opt == 'offset':
+                self.qset = self.qset[self.params.offset:]
+            elif qset_opt == 'limit':
+                self.qset = self.qset[:self.params.limit]
+            elif isinstance(value, bool) and value:
                 self.qset = func()
 
     def query_has_properties(self):
@@ -240,10 +247,6 @@ class ModelBuilder(object):
         else:
             self.qset = self.model_config.model.objects.filter(query)
         self._apply_opts()
-        # handle limit and offset separately
-        if self.params.limit:
-            self.qset = self.qset[self.params.offset:
-                                  self.params.offset + self.params.limit]
         if isinstance(self.qset, QuerySet):
             logger.debug('Request parameters: %s \nQuery: %s\n',
                          self.params.params, self.qset.query)
