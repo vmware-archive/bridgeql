@@ -97,6 +97,21 @@ ____
 
 Settings available in `BridgeQL` and their default values
 
+**BRIDGEQL_ALLOWED_APPS**
+
+Default: `[list of local apps]` (list)
+
+By default, it will try to lookup your local apps for the project, considering `settings.BASE_DIR` or `settings.SITE_ROOT` (whichever is found) as your project root directory. If none of this will be available, `WARNING` will be there to setup `BRIDGEQL_ALLOWED_APPS` as application starts up.
+
+Adding values as list of desired apps to `BRIDGEQL_ALLOWED_APPS` will allow you expose models only for the selected apps.
+This way you can add django backend apps as well as third party apps e.g. `django.contrib.auth` which can expose `User` model.
+You can combine next settings `BRIDGEQL_RESTRICTED_MODELS` to restrict few columns of that particular model e.g `password`.
+
+```python
+BRIDGEQL_ALLOWED_APPS = ['machine', 'django.contrib.auth']
+```
+______
+
 **BRIDGEQL_RESTRICTED_MODELS**
 
 Default: `{}` (Empty dictionary)
@@ -147,7 +162,7 @@ as an open-source patch. For more detailed information, refer to [CONTRIBUTING_D
 ## Authors
 
 Created and maintained by\
-[Piyus Kumar](https://github.com/piyusgupta)\
+[Piyus Kumar](https://github.com/piyusql)\
 [Priyank Singh](https://github.com/preyunk)
 
 Copyright © 2023, VMware, Inc.  All rights reserved.
