@@ -311,7 +311,7 @@ class TestAPIReader(TestCase):
             'filter': {
                 'os__isnull': True,
             },
-            'fields': ['name', 'arch'],
+            'fields': ['name', 'os__arch'],
         }
         resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
@@ -323,7 +323,7 @@ class TestAPIReader(TestCase):
             'filter': {
                 'os__isnull': True,
             },
-            'fields': ['name', 'arch'],
+            'fields': ['name', 'os__arch'],
             'count': 'yes_invalid'
         }
         resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
