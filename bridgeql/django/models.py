@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from django.apps import apps
-from django.core.exceptions import FieldDoesNotExist
+from django.core.exceptions import FieldDoesNotExist, FieldError
 from django.db.models import QuerySet
 from django.db.models.base import ModelBase
 
@@ -64,7 +64,7 @@ class Field(object):
 
     @property
     def is_restricted(self):
-        return (self.name in self.model_config.restricted_fields)
+        return self.name in self.model_config.restricted_fields
 
 
 class FieldAttributes(object):
@@ -95,7 +95,7 @@ class ModelConfig(object):
         for _property in self.get_properties():
             if _property not in _restricted_fields:
                 self.fields_attrs[_property] = FieldAttributes(
-                    _property, None, "ReadOnly Propery", None)
+                    _property, None, "ReadOnly Property", None)
         return self.fields_attrs
 
     def _get_fields(self):
@@ -195,17 +195,20 @@ class ModelBuilder(object):
                                             % (type(value), opt, opt_type))
             if isinstance(value, dict):
                 self.qset = func(**value)
+            elif qset_opt == 'offset':
+                self.qset = self.qset[self.params.offset:]
+            elif qset_opt == 'limit':
+                self.qset = self.qset[:self.params.limit]
             elif isinstance(value, list):
                 # handle values case where property is passed in fields
                 if qset_opt == 'values' and self.query_has_properties():
                     # returns DBRows instance
                     self.qset = self._add_fields()
                 else:
-                    self.qset = func(*value)
-            elif qset_opt == 'offset':
-                self.qset = self.qset[self.params.offset:]
-            elif qset_opt == 'limit':
-                self.qset = self.qset[:self.params.limit]
+                    try:
+                        self.qset = func(*value)
+                    except FieldError as e:
+                        raise InvalidModelFieldName(str(e))
             elif isinstance(value, bool) and value:
                 self.qset = func()
 
@@ -213,7 +216,7 @@ class ModelBuilder(object):
         # TODO show error if distinct is True and properties are present in fields
         if self.params.distinct:
             return False
-        return bool(set(self.params.fields) - self.model_config.fields)
+        return bool(set(self.params.fields).intersection(self.model_config.get_properties()))
 
     def _add_fields(self):
         qset_values = DBRows()
