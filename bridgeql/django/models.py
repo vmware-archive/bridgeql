@@ -94,7 +94,7 @@ class ModelConfig(object):
         for _property in self.get_properties():
             if _property not in _restricted_fields:
                 self.fields_attrs[_property] = FieldAttributes(
-                    _property, None, "ReadOnly Propery", None)
+                    _property, None, "ReadOnly Property", None)
         return self.fields_attrs
 
     def _get_fields(self):
