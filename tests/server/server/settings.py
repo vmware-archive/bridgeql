@@ -30,6 +30,38 @@ SECRET_KEY = 'django-insecure-vtx17568!)&y3#ja6$z34u2y@+9ifldbbj1m4s!%xm)k&y6%=7
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        'standard': {
+            'format': "[%(asctime)s] %(levelname)s [pid:%(process)d] "
+                      "[%(name)s.%(module)s:%(funcName)s] %(message)s",
+            'datefmt': "%d/%b/%Y %H:%M:%S",
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s',
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "standard",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "WARNING",
+    },
+    "loggers": {
+        "bridgeql.django": {
+            "handlers": ["console"],
+            "level": "DEBUG" if DEBUG else os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+            "propagate": False,
+        },
+    },
+}
+
 ALLOWED_HOSTS = []
 
 

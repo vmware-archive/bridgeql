@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from django.apps import apps
-from django.core.exceptions import FieldDoesNotExist
+from django.core.exceptions import FieldDoesNotExist, FieldError
 from django.db.models import QuerySet
 from django.db.models.base import ModelBase
 
@@ -12,7 +12,8 @@ from bridgeql.django.exceptions import (
     ForbiddenModelOrField,
     InvalidRequest,
     InvalidAppOrModelName,
-    InvalidModelFieldName
+    InvalidModelFieldName,
+    InvalidQueryException,
 )
 from bridgeql.django.query import construct_query, extract_keys
 from bridgeql.django.settings import bridgeql_settings
@@ -63,7 +64,7 @@ class Field(object):
 
     @property
     def is_restricted(self):
-        return (self.name in self.model_config.restricted_fields)
+        return self.name in self.model_config.restricted_fields
 
 
 class FieldAttributes(object):
@@ -159,11 +160,13 @@ class ModelConfig(object):
 
 class ModelBuilder(object):
     _QUERYSET_OPTS = [
-        ('exclude', 'exclude'),  # dict
-        ('distinct', 'distinct'),  # bool
-        ('order_by', 'order_by'),  # list
-        ('fields', 'values'),  # list
-        ('count', 'count'),  # bool
+        ('exclude', 'exclude', dict),
+        ('distinct', 'distinct', bool),
+        ('order_by', 'order_by', list),
+        ('offset', 'offset', int),
+        ('limit', 'limit', int),
+        ('fields', 'values', list),
+        ('count', 'count', bool),
     ]
 
     def __init__(self, params):
@@ -180,32 +183,46 @@ class ModelBuilder(object):
         self.model_config.validate_fields(set(requested_fields))
 
     def _apply_opts(self):
-        for opt, qset_opt in ModelBuilder._QUERYSET_OPTS:
-            func = getattr(self.qset, qset_opt)
+        for opt, qset_opt, opt_type in ModelBuilder._QUERYSET_OPTS:
+            # offset and limit operation will return None
+            func = getattr(self.qset, qset_opt, None)
             value = getattr(self.params, opt, None)
             if not value:
                 continue
+            if not isinstance(value, opt_type):
+                raise InvalidQueryException('Invalid type %s for %s'
+                                            ' expected %s'
+                                            % (type(value), opt, opt_type))
             if isinstance(value, dict):
                 self.qset = func(**value)
+            elif qset_opt == 'offset':
+                self.qset = self.qset[self.params.offset:]
+            elif qset_opt == 'limit':
+                self.qset = self.qset[:self.params.limit]
             elif isinstance(value, list):
                 # handle values case where property is passed in fields
                 if qset_opt == 'values' and self.query_has_properties():
                     # returns DBRows instance
                     self.qset = self._add_fields()
                 else:
-                    self.qset = func(*value)
-            else:
+                    try:
+                        self.qset = func(*value)
+                    except FieldError as e:
+                        raise InvalidModelFieldName(str(e))
+            elif isinstance(value, bool) and value:
                 self.qset = func()
 
     def query_has_properties(self):
         # TODO show error if distinct is True and properties are present in fields
         if self.params.distinct:
             return False
-        return bool(set(self.params.fields) - self.model_config.fields)
+        return bool(set(self.params.fields).intersection(self.model_config.get_properties()))
 
     def _add_fields(self):
         qset_values = DBRows()
-        self.print_db_query_log()
+        self.qset = self.qset.select_related()
+        logger.debug('Request parameters: %s \nQuery: %s\n',
+                     self.params.params, self.qset.query)
         for row in self.qset:
             model_fields = {}
             for field in self.params.fields:
@@ -213,9 +230,11 @@ class ModelBuilder(object):
                 for ref in field.split('__'):
                     try:
                         attr = getattr(attr, ref)
+                        if attr is None:
+                            break
                     except AttributeError:
                         raise InvalidModelFieldName(
-                            'Invalid query for field %s.' % ref)
+                            'Invalid query for field %s in %s.' % (ref, attr))
                 model_fields[field] = attr
             qset_values.append(model_fields)
         return qset_values
@@ -231,17 +250,11 @@ class ModelBuilder(object):
         else:
             self.qset = self.model_config.model.objects.filter(query)
         self._apply_opts()
-        # handle limit and offset seperately
-        if self.params.limit:
-            self.qset = self.qset[self.params.offset:
-                                  self.params.offset + self.params.limit]
         if isinstance(self.qset, QuerySet):
-            self.print_db_query_log()
+            logger.debug('Request parameters: %s \nQuery: %s\n',
+                         self.params.params, self.qset.query)
             return list(self.qset)
         return self.qset
 
-    def print_db_query_log(self):
-        logger.debug('Request parameters: %s \nQuery: %s',
-                     self.params.params, self.qset.query)
 
 # query -> normal fields, foreign key reference

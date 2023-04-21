@@ -11,7 +11,6 @@ from django.contrib.admin.views.decorators import staff_member_required
 
 
 from bridgeql import __copyright__, __license__, __title__, __version__
-from bridgeql.django.auth import auth_decorator
 from bridgeql.django.exceptions import InvalidBridgeQLSettings
 from bridgeql.django.schema import BridgeqlModelFields
 from bridgeql.django.models import ModelConfig

@@ -3,10 +3,6 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 
-class InvalidQueryException(Exception):
-    pass
-
-
 class ForbiddenModelOrField(Exception):
     pass
 
@@ -20,6 +16,10 @@ class InvalidAppOrModelName(InvalidRequest):
 
 
 class InvalidModelFieldName(InvalidRequest):
+    pass
+
+
+class InvalidQueryException(InvalidRequest):
     pass
 
 
