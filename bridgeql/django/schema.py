@@ -6,7 +6,8 @@ from collections import defaultdict
 
 from django.apps import apps
 
-from bridgeql.django.settings import BridgeQLSettings
+from bridgeql.django.helpers import get_allowed_apps
+from bridgeql.django.exceptions import InvalidBridgeQLSettings
 
 
 class BridgeqlModelFields(object):
@@ -20,7 +21,10 @@ class BridgeqlModelFields(object):
 
     @classmethod
     def get_local_apps_models(cls):
-        _local_apps = BridgeQLSettings.get_local_apps()
+        try:
+            _local_apps = get_allowed_apps()
+        except InvalidBridgeQLSettings:
+            raise
         _all_apps = cls.get_all_app_models()
         _local_apps_models = defaultdict(list)
         for _app in _local_apps:

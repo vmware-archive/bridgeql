@@ -18,6 +18,7 @@ import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+SITE_ROOT = BASE_DIR
 
 
 # Quick-start development settings - unsuitable for production
@@ -162,6 +163,7 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+#BRIDGEQL_ALLOWED_APPS = []
 BRIDGEQL_RESTRICTED_MODELS = {
     'auth.User': True,
     'machine.OperatingSystem': ['license_key'],

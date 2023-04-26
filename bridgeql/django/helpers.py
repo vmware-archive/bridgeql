@@ -2,12 +2,18 @@
 # Copyright © 2023 VMware, Inc.  All rights reserved.
 # SPDX-License-Identifier: BSD-2-Clause
 
+import os
 from datetime import datetime
 import json
 
-from django.http import HttpResponse
+from django.apps import apps
+from django.conf import settings
 from django.db.models.query import QuerySet
+from django.http import HttpResponse
 
+
+from bridgeql.django.exceptions import InvalidBridgeQLSettings
+from bridgeql.django.settings import bridgeql_settings
 
 class JSONEncoder(json.JSONEncoder):
     '''
@@ -36,3 +42,22 @@ class JSONResponse(HttpResponse):
         else:
             data = json.dumps(content, indent=3, cls=encoder)
         HttpResponse.__init__(self, data, content_type, status)
+
+
+def get_local_apps():
+    _local_apps = []
+    if hasattr(settings, 'BASE_DIR'):
+        project_root = os.path.abspath(settings.BASE_DIR)
+    elif hasattr(settings, 'SITE_ROOT'):
+        project_root = os.path.abspath(settings.SITE_ROOT)
+    else:
+        return _local_apps
+
+    for app in apps.get_app_configs():
+        if os.path.dirname(app.path) == project_root:
+            _local_apps.append(app.label)
+    return _local_apps
+
+
+def get_allowed_apps():
+    return bridgeql_settings.BRIDGEQL_ALLOWED_APPS or get_local_apps()

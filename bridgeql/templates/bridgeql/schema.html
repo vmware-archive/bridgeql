@@ -19,8 +19,11 @@
     </title>
   </head>
   <body>
-    <h1>
-    </h1>
+    <h3>
+    {% if msg %}
+    {{ msg }}
+    {% endif %}
+    </h3>
     <table style="width:75%"> 
     <tr>
         <th> App Name </th>
