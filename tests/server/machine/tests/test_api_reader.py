@@ -32,6 +32,7 @@ class TestAPIReader(TestCase):
         resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
         resp_json = resp.json()
+        print(resp_json)
         self.assertEqual(resp_json['data'][0]['ip'], "10.0.0.1")
 
     def test_get_os(self):
@@ -47,6 +48,32 @@ class TestAPIReader(TestCase):
         self.assertEqual(resp.status_code, 200)
         resp_json = resp.json()
         self.assertEqual(resp_json['data'][0]['arch'], "arch-name-1")
+
+    def test_get_only_property(self):
+        self.params = {
+            'app_name': 'machine',
+            'model_name': 'Machine',
+            'filter': {
+                'name': 'machine-name-1'
+            },
+            'fields': ['stats']
+        }
+        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        self.assertEqual(resp.status_code, 200)
+        resp_json = resp.json()
+        print(resp_json)
+        self.assertEqual(resp_json['data'][0]['stats'], "CPU: 2, Mem 1GB")
+
+    def test_empty_fields(self):
+        self.params = {
+            'app_name': 'machine',
+            'model_name': 'Machine',
+            'filter': {
+                'name': 'machine-name-1'
+            }
+        }
+        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        self.assertEqual(resp.status_code, 200)
 
     def test_or_query(self):
         self.params = {
