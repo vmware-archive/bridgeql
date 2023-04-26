@@ -13,6 +13,7 @@ from django.http import HttpResponse
 
 
 from bridgeql.django.exceptions import InvalidBridgeQLSettings
+from bridgeql.django.settings import bridgeql_settings
 
 class JSONEncoder(json.JSONEncoder):
     '''
@@ -44,18 +45,14 @@ class JSONResponse(HttpResponse):
 
 
 def get_local_apps():
+    _local_apps = []
     if hasattr(settings, 'BASE_DIR'):
         project_root = os.path.abspath(settings.BASE_DIR)
     elif hasattr(settings, 'SITE_ROOT'):
         project_root = os.path.abspath(settings.SITE_ROOT)
     else:
-        project_root = None
+        return _local_apps
 
-    if not project_root:
-        raise InvalidBridgeQLSettings(
-                'Could not find BASE_DIR and SITE_ROOT \
-                BRIDGEQL_ALLOWED_APPS needs to be initilised in settings')
-    _local_apps = []
     for app in apps.get_app_configs():
         if os.path.dirname(app.path) == project_root:
             _local_apps.append(app.label)
@@ -63,8 +60,4 @@ def get_local_apps():
 
 
 def get_allowed_apps():
-    if hasattr(settings, 'BRIDGEQL_ALLOWED_APPS'):
-        return settings.BRIDGEQL_ALLOWED_APPS or get_local_apps()
-    raise InvalidBridgeQLSettings(
-            'BRIDGEQL_ALLOWED_APPS needs to be initilised in settings')
-
+    return bridgeql_settings.BRIDGEQL_ALLOWED_APPS or get_local_apps()

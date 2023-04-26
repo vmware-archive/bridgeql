@@ -6,7 +6,6 @@ from collections import defaultdict
 
 from django.apps import apps
 
-from bridgeql.django.settings import BridgeQLSettings
 from bridgeql.django.helpers import get_allowed_apps
 from bridgeql.django.exceptions import InvalidBridgeQLSettings
 
