@@ -16,7 +16,8 @@ from bridgeql.django.exceptions import (
     InvalidModelFieldName,
     InvalidQueryException,
 )
-from bridgeql.django.query import construct_query, extract_keys
+from bridgeql.django.fields import Field, FieldAttributes
+from bridgeql.django.query import Query
 from bridgeql.django.settings import bridgeql_settings
 
 
@@ -45,30 +46,6 @@ class Parameters(object):
         # validation for required fields
         if not any((self.app_name, self.model_name)):
             raise InvalidRequest('app_name or model_name missing')
-
-
-class Field(object):
-    def __init__(self, model_config, field_name):
-        self.model_config = model_config
-        self.name = field_name
-        self._resolve_pk()
-
-    def _resolve_pk(self):
-        if self.name == 'pk':
-            self.name = self.model_config.model._meta.pk.name
-
-    @property
-    def is_restricted(self):
-        return self.name in self.model_config.restricted_fields
-
-
-class FieldAttributes(object):
-
-    def __init__(self, name, is_null, field_type, help_text):
-        self.field_name = name
-        self.is_null = is_null
-        self.field_type = field_type
-        self.help_text = help_text
 
 
 class ModelConfig(object):
@@ -171,8 +148,8 @@ class ModelBuilder(object):
         self.model_config = ModelConfig(
             self.params.app_name, self.params.model_name)
         requested_fields = list()
-        requested_fields.extend(extract_keys(self.params.filter))
-        requested_fields.extend(extract_keys(self.params.exclude))
+        requested_fields.extend(Query.extract_keys(self.params.filter))
+        requested_fields.extend(Query.extract_keys(self.params.exclude))
         requested_fields.extend(self.params.fields)
         requested_fields.extend(self.params.order_by)
         self.model_config.validate_fields(set(requested_fields))
@@ -251,12 +228,12 @@ class ModelBuilder(object):
 
     def queryset(self):
         # construct Q object from dictionary
-        query = construct_query(self.params.filter)
+        query = Query(self.params.filter)
         if self.params.db_name:
             self.qset = self.model_config.model.objects.using(
-                self.params.db_name).filter(query)
+                self.params.db_name).filter(query.Q)
         else:
-            self.qset = self.model_config.model.objects.filter(query)
+            self.qset = self.model_config.model.objects.filter(query.Q)
         self._apply_opts()
         if isinstance(self.qset, QuerySet):
             logger.debug('Request parameters: %s \nQuery: %s\n',
