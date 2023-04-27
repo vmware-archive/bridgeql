@@ -16,7 +16,6 @@ from bridgeql.django.exceptions import (
     InvalidQueryException,
 )
 from bridgeql.django.fields import Field, FieldAttributes
-from bridgeql.django import model_meta
 from bridgeql.django.query import Query
 from bridgeql.django.settings import bridgeql_settings
 from bridgeql.types import DBRows
@@ -55,8 +54,14 @@ class ModelConfig(object):
         self.model_name = model_name
         self.restricted_fields = self._get_restricted_fields()
         self.model = self._get_model()  # restricted_fields list to set
-        self.fields = model_meta.get_fields(self.model)
+        self.fields = self.get_fields()
         self.fields_attrs = {}
+
+    def get_fields(self):
+        return set([f.name for f in self.model._meta.local_fields])
+
+    def get_properties(self):
+        return set(self.model._meta._property_names) - {'pk'}
 
     def get_fields_attrs(self):
         _restricted_fields = self._get_restricted_fields()
@@ -65,7 +70,7 @@ class ModelConfig(object):
                 self.fields_attrs[field.name] = FieldAttributes(
                     field.name, field.null, field.get_internal_type(), field.help_text)
 
-        for _property in model_meta.get_properties(self.model):
+        for _property in self.get_properties():
             if _property not in _restricted_fields:
                 self.fields_attrs[_property] = FieldAttributes(
                     _property, None, "ReadOnly Property", None)
@@ -174,7 +179,7 @@ class ModelBuilder(object):
                 if qset_opt == 'values':
                     # list of parameters passed in values function
                     values_params = set(value) - \
-                        model_meta.get_properties(self.model_config.model)
+                        self.model_config.get_properties()
                     # list of properties handled separately
                     properties = set(value) - values_params
                     try:
@@ -200,7 +205,7 @@ class ModelBuilder(object):
         if self.params.distinct:
             return False
         return bool(set(self.params.fields).intersection(
-            model_meta.get_properties(self.model_config.model)))
+            self.model_config.get_properties()))
 
     def _add_properties(self, db_rows, query_properties):
         # evaluate queryset values
