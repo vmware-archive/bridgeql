@@ -85,5 +85,4 @@ class BridgeQLSettings:
         )
 
 
-
 bridgeql_settings = BridgeQLSettings()

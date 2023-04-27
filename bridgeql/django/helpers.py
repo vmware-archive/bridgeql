@@ -15,6 +15,7 @@ from django.http import HttpResponse
 from bridgeql.django.exceptions import InvalidBridgeQLSettings
 from bridgeql.django.settings import bridgeql_settings
 
+
 class JSONEncoder(json.JSONEncoder):
     '''
     Encode an object in JSON.

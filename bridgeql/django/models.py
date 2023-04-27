@@ -15,8 +15,10 @@ from bridgeql.django.exceptions import (
     InvalidModelFieldName,
     InvalidQueryException,
 )
-from bridgeql.django.query import construct_query, extract_keys
+from bridgeql.django.fields import Field, FieldAttributes
+from bridgeql.django.query import Query
 from bridgeql.django.settings import bridgeql_settings
+from bridgeql.types import DBRows
 
 
 class Parameters(object):
@@ -46,44 +48,20 @@ class Parameters(object):
             raise InvalidRequest('app_name or model_name missing')
 
 
-class DBRows(list):
-    # override count method of list
-    def count(self):
-        return len(self)
-
-
-class Field(object):
-    def __init__(self, model_config, field_name):
-        self.model_config = model_config
-        self.name = field_name
-        self._resolve_pk()
-
-    def _resolve_pk(self):
-        if self.name == 'pk':
-            self.name = self.model_config.model._meta.pk.name
-
-    @property
-    def is_restricted(self):
-        return self.name in self.model_config.restricted_fields
-
-
-class FieldAttributes(object):
-
-    def __init__(self, name, is_null, field_type, help_text):
-        self.field_name = name
-        self.is_null = is_null
-        self.field_type = field_type
-        self.help_text = help_text
-
-
 class ModelConfig(object):
     def __init__(self, app_name, model_name):
         self.app_name = app_name
         self.model_name = model_name
         self.restricted_fields = self._get_restricted_fields()
         self.model = self._get_model()  # restricted_fields list to set
-        self.fields = self._get_fields()
+        self.fields = self.get_fields()
         self.fields_attrs = {}
+
+    def get_fields(self):
+        return set([f.name for f in self.model._meta.local_fields])
+
+    def get_properties(self):
+        return set(self.model._meta._property_names) - {'pk'}
 
     def get_fields_attrs(self):
         _restricted_fields = self._get_restricted_fields()
@@ -97,12 +75,6 @@ class ModelConfig(object):
                 self.fields_attrs[_property] = FieldAttributes(
                     _property, None, "ReadOnly Property", None)
         return self.fields_attrs
-
-    def _get_fields(self):
-        return set([f.name for f in self.model._meta.local_fields])
-
-    def get_properties(self):
-        return set(self.model._meta._property_names) - {'pk'}
 
     def _get_restricted_fields(self):
         # get from settings
@@ -176,8 +148,8 @@ class ModelBuilder(object):
         self.model_config = ModelConfig(
             self.params.app_name, self.params.model_name)
         requested_fields = list()
-        requested_fields.extend(extract_keys(self.params.filter))
-        requested_fields.extend(extract_keys(self.params.exclude))
+        requested_fields.extend(Query.extract_keys(self.params.filter))
+        requested_fields.extend(Query.extract_keys(self.params.exclude))
         requested_fields.extend(self.params.fields)
         requested_fields.extend(self.params.order_by)
         self.model_config.validate_fields(set(requested_fields))
@@ -187,7 +159,10 @@ class ModelBuilder(object):
             # offset and limit operation will return None
             func = getattr(self.qset, qset_opt, None)
             value = getattr(self.params, opt, None)
-            if not value:
+            # do not execute operation if value is not passed
+            # or it does not have default value specified in
+            # Parameters class such as [], {}, False
+            if value is None:
                 continue
             if not isinstance(value, opt_type):
                 raise InvalidQueryException('Invalid type %s for %s'
@@ -200,10 +175,23 @@ class ModelBuilder(object):
             elif qset_opt == 'limit':
                 self.qset = self.qset[:self.params.limit]
             elif isinstance(value, list):
-                # handle values case where property is passed in fields
-                if qset_opt == 'values' and self.query_has_properties():
-                    # returns DBRows instance
-                    self.qset = self._add_fields()
+                # handle values case separately
+                if qset_opt == 'values':
+                    # list of parameters passed in values function
+                    values_params = set(value) - \
+                        self.model_config.get_properties()
+                    # list of properties handled separately
+                    properties = set(value) - values_params
+                    try:
+                        # qset.values(*fields) is called but not yet evaluated
+                        qset_values = func(*values_params)
+                    except FieldError as e:
+                        raise InvalidModelFieldName(str(e))
+                    if self.query_has_properties():
+                        # queryset evaluated
+                        qset_values = self._add_properties(
+                            qset_values, properties)
+                    self.qset = qset_values
                 else:
                     try:
                         self.qset = func(*value)
@@ -216,45 +204,40 @@ class ModelBuilder(object):
         # TODO show error if distinct is True and properties are present in fields
         if self.params.distinct:
             return False
-        return bool(set(self.params.fields).intersection(self.model_config.get_properties()))
+        return bool(set(self.params.fields).intersection(
+            self.model_config.get_properties()))
 
-    def _add_fields(self):
+    def _add_properties(self, db_rows, query_properties):
+        # evaluate queryset values
+        db_rows = list(db_rows)
         qset_values = DBRows()
-        self.qset = self.qset.select_related()
-        logger.debug('Request parameters: %s \nQuery: %s\n',
+        # skipping select_related call, expecting
+        # properties will not have references call
+        # like machine.os.arch in any of the machine's property
+        logger.debug('Request parameters: %s \nQuery (2nd call): %s\n',
                      self.params.params, self.qset.query)
-        for row in self.qset:
-            model_fields = {}
-            for field in self.params.fields:
-                attr = row
-                for ref in field.split('__'):
-                    try:
-                        attr = getattr(attr, ref)
-                        if attr is None:
-                            break
-                    except AttributeError:
-                        raise InvalidModelFieldName(
-                            'Invalid query for field %s in %s.' % (ref, attr))
-                model_fields[field] = attr
-            qset_values.append(model_fields)
+        for i, row in enumerate(self.qset):
+            for field in query_properties:
+                try:
+                    model_property = getattr(row, field)
+                except AttributeError:
+                    raise InvalidModelFieldName(
+                        'Query field "%s" does not exists.' % field)
+                db_rows[i][field] = model_property
+            qset_values.append(db_rows[i])
         return qset_values
 
     def queryset(self):
         # construct Q object from dictionary
-        # x = Machine.objects.filter(name__startswith='machine-name-1')
-        # x.distinct().order_by('os__name').values('os__name','ip').count()
-        query = construct_query(self.params.filter)
+        query = Query(self.params.filter)
         if self.params.db_name:
             self.qset = self.model_config.model.objects.using(
-                self.params.db_name).filter(query)
+                self.params.db_name).filter(query.Q)
         else:
-            self.qset = self.model_config.model.objects.filter(query)
+            self.qset = self.model_config.model.objects.filter(query.Q)
         self._apply_opts()
         if isinstance(self.qset, QuerySet):
             logger.debug('Request parameters: %s \nQuery: %s\n',
                          self.params.params, self.qset.query)
             return list(self.qset)
         return self.qset
-
-
-# query -> normal fields, foreign key reference

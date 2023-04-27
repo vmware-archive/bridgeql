@@ -163,7 +163,6 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-#BRIDGEQL_ALLOWED_APPS = []
 BRIDGEQL_RESTRICTED_MODELS = {
     'auth.User': True,
     'machine.OperatingSystem': ['license_key'],
