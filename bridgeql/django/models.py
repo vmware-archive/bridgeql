@@ -205,7 +205,6 @@ class ModelBuilder(object):
     def _add_fields(self):
         qset_values = DBRows()
         self.qset = self.qset.select_related(*self.params.fk_refs_in_fields)
-        logger.debug(self.params.fk_refs_in_fields)
         logger.debug('Request parameters: %s \nQuery: %s\n',
                      self.params.params, self.qset.query)
         for row in self.qset:
