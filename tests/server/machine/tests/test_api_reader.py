@@ -27,7 +27,7 @@ class TestAPIReader(TestCase):
             'filter': {
                 'name': 'machine-name-1'
             },
-            'fields': ['ip', 'name', 'created_at', 'stats']
+            'fields': ['ip', 'name', 'created_at', 'stats', 'os__name']
         }
         resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)

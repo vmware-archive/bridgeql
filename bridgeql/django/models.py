@@ -47,6 +47,14 @@ class Parameters(object):
         if not any((self.app_name, self.model_name)):
             raise InvalidRequest('app_name or model_name missing')
 
+    @property
+    def fk_refs_in_fields(self):
+        refs = []
+        for field in self.fields:
+            if '__' in field:
+                refs.append(field.rsplit('__', 1)[0])
+        return refs
+
 
 class ModelConfig(object):
     def __init__(self, app_name, model_name):
@@ -175,23 +183,10 @@ class ModelBuilder(object):
             elif qset_opt == 'limit':
                 self.qset = self.qset[:self.params.limit]
             elif isinstance(value, list):
-                # handle values case separately
-                if qset_opt == 'values':
-                    # list of parameters passed in values function
-                    values_params = set(value) - \
-                        self.model_config.get_properties()
-                    # list of properties handled separately
-                    properties = set(value) - values_params
-                    try:
-                        # qset.values(*fields) is called but not yet evaluated
-                        qset_values = func(*values_params)
-                    except FieldError as e:
-                        raise InvalidModelFieldName(str(e))
-                    if self.query_has_properties():
-                        # queryset evaluated
-                        qset_values = self._add_properties(
-                            qset_values, properties)
-                    self.qset = qset_values
+                # handle values case where property is passed in fields
+                if qset_opt == 'values' and self.query_has_properties():
+                    # returns DBRows instance
+                    self.qset = self._add_fields()
                 else:
                     try:
                         self.qset = func(*value)
@@ -207,24 +202,25 @@ class ModelBuilder(object):
         return bool(set(self.params.fields).intersection(
             self.model_config.get_properties()))
 
-    def _add_properties(self, db_rows, query_properties):
-        # evaluate queryset values
-        db_rows = list(db_rows)
+    def _add_fields(self):
         qset_values = DBRows()
-        # skipping select_related call, expecting
-        # properties will not have references call
-        # like machine.os.arch in any of the machine's property
-        logger.debug('Request parameters: %s \nQuery (2nd call): %s\n',
+        self.qset = self.qset.select_related(*self.params.fk_refs_in_fields)
+        logger.debug('Request parameters: %s \nQuery: %s\n',
                      self.params.params, self.qset.query)
-        for i, row in enumerate(self.qset):
-            for field in query_properties:
-                try:
-                    model_property = getattr(row, field)
-                except AttributeError:
-                    raise InvalidModelFieldName(
-                        'Query field "%s" does not exists.' % field)
-                db_rows[i][field] = model_property
-            qset_values.append(db_rows[i])
+        for row in self.qset:
+            model_fields = {}
+            for field in self.params.fields:
+                attr = row
+                for ref in field.split('__'):
+                    try:
+                        attr = getattr(attr, ref)
+                        if attr is None:
+                            break
+                    except AttributeError:
+                        raise InvalidModelFieldName(
+                            'Invalid query for field %s in %s.' % (ref, attr))
+                model_fields[field] = attr
+            qset_values.append(model_fields)
         return qset_values
 
     def queryset(self):
