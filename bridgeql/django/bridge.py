@@ -3,9 +3,11 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 import json
+
 from django.views.decorators.http import require_GET, require_POST
 from django.core.exceptions import ObjectDoesNotExist
 
+from bridgeql.django import logger
 from bridgeql.django.auth import auth_decorator
 from bridgeql.django.exceptions import (
     ForbiddenModelOrField,
@@ -28,12 +30,15 @@ def read_django_model(request):
         res = {'data': qset, 'message': '', 'success': True}
         return JSONResponse(res)
     except ForbiddenModelOrField as e:
+        logger.error(e)
         res = {'data': [], 'message': str(e), 'success': False}
         return JSONResponse(res, status=403)
     except InvalidRequest as e:
+        logger.error(e)
         res = {'data': [], 'message': str(e), 'success': False}
         return JSONResponse(res, status=400)
     except Exception as e:
+        logger.exception(e)
         res = {'data': [], 'message': str(e), 'success': False}
         return JSONResponse(res, status=500)
 

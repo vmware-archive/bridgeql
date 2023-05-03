@@ -11,7 +11,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 
 
 from bridgeql import __copyright__, __license__, __title__, __version__
-from bridgeql.django.auth import auth_decorator
+from bridgeql.django.exceptions import InvalidBridgeQLSettings
 from bridgeql.django.schema import BridgeqlModelFields
 from bridgeql.django.models import ModelConfig
 
@@ -31,11 +31,16 @@ def index(request):
 @require_GET
 def generate_bridgeql_schema(request):
     model_info = defaultdict(dict)
-    local_apps_models = BridgeqlModelFields.get_local_apps_models()
+    msg = ""
+    try:
+        local_apps_models = BridgeqlModelFields.get_local_apps_models()
+    except InvalidBridgeQLSettings:
+        msg = "Could not find schema, please initialize BRIDGEQL_ALLOWED_APPS in settings.py"
+        return render(request, "bridgeql/schema.html", {"model_info": dict(model_info), 'msg': msg})
     for app, models in local_apps_models.items():
         model_info[app] = {}
         for model in models:
             _model_config = ModelConfig(app, model)
             _model_name = _model_config.full_model_name
             model_info[app][_model_name] = _model_config.get_fields_attrs()
-    return render(request, "bridgeql/schema.html", {"model_info": dict(model_info)})
+    return render(request, "bridgeql/schema.html", {"model_info": dict(model_info), 'msg': msg})

@@ -19,8 +19,11 @@
     </title>
   </head>
   <body>
-    <h1>
-    </h1>
+    <h3>
+    {% if msg %}
+    {{ msg }}
+    {% endif %}
+    </h3>
     <table style="width:75%"> 
     <tr>
         <th> App Name </th>
@@ -43,7 +46,7 @@
                             {% if forloop.first %}
                                 <tr> 
                                 <th> Name </th>
-                                <th> Mandatory </th>
+                                <th> Required </th>
                                 <th> Field type </th>
                                 <th> Help text</th>
                                 </tr>

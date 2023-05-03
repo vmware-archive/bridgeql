@@ -10,6 +10,7 @@ from bridgeql.django.exceptions import (
     InvalidModelFieldName
 )
 from bridgeql.django.settings import bridgeql_settings
+from bridgeql.django.helpers import get_allowed_apps
 
 
 class TestSettings(TestCase):
@@ -85,4 +86,4 @@ class TestSettings(TestCase):
         self.assertTrue(bridgeql_settings.validate())
 
     def test_list_local_apps(self):
-        self.assertListEqual(bridgeql_settings.get_local_apps(), ['machine'])
+        self.assertListEqual(get_allowed_apps(), ['machine'])

@@ -14,8 +14,8 @@ from bridgeql.django.views import index, generate_bridgeql_schema
 bridgeql_settings.validate()
 
 urlpatterns = [
-    path('dj_read/', bridge.read_django_model, name='bridgeql_django_read'),
-    path('dj_update/(?P<app_label>\w+)/(?P<model_name>\w+)/(?P<pk>\d+)/',
+    path('reader/', read_django_model, name='bridgeql_django_read'),
+    path('updater/(?P<app_label>\w+)/(?P<model_name>\w+)/(?P<pk>\d+)/',
          bridge.update_django_model, name='bridgeql_django_update'),
     path('schema/', generate_bridgeql_schema, name='generate_bridgeql_schema'),
     path('', index, name='bridgeql_django_index'),

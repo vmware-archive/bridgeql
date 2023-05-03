@@ -5,7 +5,7 @@
 import json
 import os
 
-from django.urls import reverse
+from django.urls import reverse as url_reverse
 from django.test import TestCase, override_settings
 from django.test.client import Client
 from django.conf import settings
@@ -17,7 +17,7 @@ class TestAPIReader(TestCase):
     fixtures = [os.path.join(settings.BASE_DIR, 'machine_tests.json'), ]
 
     def setUp(self):
-        self.url = reverse('bridgeql_django_read')
+        self.url = url_reverse('bridgeql_django_read')
         self.client = Client()
 
     def test_get_machine(self):
@@ -27,12 +27,19 @@ class TestAPIReader(TestCase):
             'filter': {
                 'name': 'machine-name-1'
             },
-            'fields': ['ip', 'name', 'created_at', 'stats']
+            'fields': ['ip', 'name', 'created_at', 'stats', 'os__name']
         }
         resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
         resp_json = resp.json()
         self.assertEqual(resp_json['data'][0]['ip'], "10.0.0.1")
+
+        # check if the response contains only fields requested in the query
+        def _checkListEqual(l1, l2):
+            return len(l1) == len(l2) and sorted(l1) == sorted(l2)
+
+        assert _checkListEqual(
+            list(resp_json['data'][0].keys()), self.params['fields'])
 
     def test_get_os(self):
         self.params = {
@@ -47,6 +54,31 @@ class TestAPIReader(TestCase):
         self.assertEqual(resp.status_code, 200)
         resp_json = resp.json()
         self.assertEqual(resp_json['data'][0]['arch'], "arch-name-1")
+
+    def test_get_only_property(self):
+        self.params = {
+            'app_name': 'machine',
+            'model_name': 'Machine',
+            'filter': {
+                'name': 'machine-name-1'
+            },
+            'fields': ['stats']
+        }
+        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        self.assertEqual(resp.status_code, 200)
+        resp_json = resp.json()
+        self.assertEqual(resp_json['data'][0]['stats'], "CPU: 2, Mem 1GB")
+
+    def test_empty_fields(self):
+        self.params = {
+            'app_name': 'machine',
+            'model_name': 'Machine',
+            'filter': {
+                'name': 'machine-name-1'
+            }
+        }
+        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        self.assertEqual(resp.status_code, 200)
 
     def test_or_query(self):
         self.params = {
@@ -113,6 +145,21 @@ class TestAPIReader(TestCase):
         res_json = resp.json()
         self.assertEqual(10, res_json['data'])
 
+    def test_count_false_query(self):
+        self.params = {
+            'app_name': 'machine',
+            'model_name': 'Machine',
+            'filter': {
+                'os__name': 'os-name-5'
+            },
+            'fields': ['name'],
+            'count': False
+        }
+        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        self.assertEqual(resp.status_code, 200)
+        res_json = resp.json()
+        self.assertEqual(10, len(res_json['data']))
+
     def test_count_distinct_query(self):
         self.params = {
             'app_name': 'machine',
@@ -173,7 +220,7 @@ class TestAPIReader(TestCase):
             'filter': {
                 'pk': 4,
             },
-            'fields': ['os__name']
+            'fields': ['os__name', 'pk']
         }
         resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
@@ -193,7 +240,7 @@ class TestAPIReader(TestCase):
         self.assertEqual(Machine.objects.count(), 100)
 
     def test_fail_distinct_with_property(self):
-        # TODO test should faild if distinct is True and
+        # TODO test should failed if distinct is True and
         # properties are present in fields
         pass
 
@@ -296,10 +343,24 @@ class TestAPIReader(TestCase):
             'filter': {
                 'os__isnull': True,
             },
-            'fields': ['name', 'arch'],
+            'fields': ['name', 'os__arch'],
         }
         resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
+
+    def test_invalid_query_type(self):
+        self.params = {
+            'app_name': 'machine',
+            'model_name': 'Machine',
+            'filter': {
+                'os__isnull': True,
+            },
+            'fields': ['name', 'os__arch'],
+            'count': 'yes_invalid'
+        }
+        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        self.assertEqual(resp.status_code, 400)
+        self.assertFalse(resp.json()['success'])
 
     @override_settings(BRIDGEQL_AUTHENTICATION_DECORATOR='server.auth.localtest')
     def test_custom_auth_decorator(self):
