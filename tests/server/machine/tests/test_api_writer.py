@@ -4,6 +4,7 @@
 
 import json
 import os
+from datetime import datetime
 
 from django.urls import reverse
 from django.test import TestCase
@@ -11,11 +12,45 @@ from django.test.client import Client
 from django.conf import settings
 
 
-class TestAPIUpdater(TestCase):
+class TestAPIWriter(TestCase):
     fixtures = [os.path.join(settings.BASE_DIR, 'machine_tests.json'), ]
 
     def setUp(self):
         self.client = Client()
+
+    # Test to create a successful machine model
+    def test_create_machine(self):
+        url = reverse('bridgeql_django_create', kwargs={
+            'app_label': 'machine',
+            'model_name': 'Machine',
+        })
+        params = {
+            'ip': '10.0.0.211',
+            'created_at': datetime.now().isoformat(),
+            'cpu_count': 4,
+            'memory': 4,
+            'powered_on': False,
+            'name': 'dummy_machine',
+            'os_id': 1
+        }
+        resp = self.client.post(
+            url, {'payload': json.dumps(params)}
+        )
+        self.assertEqual(resp.status_code, 200)
+
+    # Validation error since NOT NULL fields are not passed
+    def test_create_machine_missing_fields(self):
+        url = reverse('bridgeql_django_create', kwargs={
+            'app_label': 'machine',
+            'model_name': 'Machine',
+        })
+        params = {
+            'ip': '10.0.0.211',
+        }
+        resp = self.client.post(
+            url, {'payload': json.dumps(params)}
+        )
+        self.assertEqual(resp.status_code, 400)
 
     def test_update_machine(self):
         machine_object_pk = 10
@@ -62,7 +97,7 @@ class TestAPIUpdater(TestCase):
                          'Machine matching query does not exist.')
         self.assertFalse(resp.json()['success'])
 
-    def test_cannot_update_attributes_machine(self):
+    def test_update_readonly_fields(self):
         machine_object_pk = 11
         url = reverse('bridgeql_django_update', kwargs={
             'app_label': 'machine',

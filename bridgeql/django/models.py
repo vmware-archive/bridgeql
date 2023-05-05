@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from django.apps import apps
-from django.core.exceptions import FieldDoesNotExist, FieldError
+from django.core.exceptions import FieldDoesNotExist, FieldError, ValidationError
 from django.db.models import QuerySet
 from django.db.models.base import ModelBase
 
@@ -139,16 +139,45 @@ class ModelConfig(object):
 
 
 class ModelObject(object):
-    def __init__(self, app_label, model_name):
+    def __init__(self, app_label, model_name, **kwargs):
         self.model_config = ModelConfig(app_label, model_name)
+        self.instance = None
+        db_name = kwargs.pop('db_name', None)
+        pk = kwargs.pop('pk', None)
+        if pk:
+            obj_manager = self.model_config.model.objects
+            if db_name:
+                obj_manager = obj_manager.using(db_name)
+            # might throw error if more than one value found
+            self.instance = obj_manager.get(pk=pk)
 
-    def update(self, pk, params):
-        # check if there are any restricted fields in data
-        obj = self.model_config.model.objects.get(pk=pk)
+    def update(self, params):
+        # TODO check if there are any restricted fields in data
         for key, val in params.items():
-            setattr(obj, key, val)
-        obj.save()
-        return obj
+            setattr(self.instance, key, val)
+        # Perform validation
+        try:
+            self.instance.full_clean()
+        except ValidationError:
+            raise
+        self.instance.save()
+        return self.instance
+
+    def create(self, params):
+        # TODO validate data
+        db_name = params.pop('db_name', None)
+        save_kwargs = {}
+        if db_name:
+            save_kwargs['using'] = db_name
+        self.instance = self.model_config.model(**params)
+        # Perform validation
+        try:
+            self.instance.full_clean()
+        except ValidationError:
+            raise
+        self.instance.save(**save_kwargs)
+        return self.instance
+
 
 
 class ModelBuilder(object):
