@@ -14,6 +14,7 @@ from bridgeql.django.exceptions import (
     InvalidAppOrModelName,
     InvalidModelFieldName,
     InvalidQueryException,
+    InvalidPKException
 )
 from bridgeql.django.fields import Field, FieldAttributes
 from bridgeql.django.query import Query
@@ -142,14 +143,17 @@ class ModelObject(object):
     def __init__(self, app_label, model_name, **kwargs):
         self.model_config = ModelConfig(app_label, model_name)
         self.instance = None
-        db_name = kwargs.pop('db_name', None)
+        self.db_name = kwargs.pop('db_name', None)
         pk = kwargs.pop('pk', None)
         if pk:
             obj_manager = self.model_config.model.objects
-            if db_name:
-                obj_manager = obj_manager.using(db_name)
-            # might throw error if more than one value found
-            self.instance = obj_manager.get(pk=pk)
+            if self.db_name:
+                obj_manager = obj_manager.using(self.db_name)
+            # throw error if more than one value found
+            try:
+                self.instance = obj_manager.get(pk=pk)
+            except ValueError as e:
+                raise InvalidPKException(str(e))
 
     def update(self, params):
         # TODO check if there are any restricted fields in data
@@ -165,10 +169,10 @@ class ModelObject(object):
 
     def create(self, params):
         # TODO validate data
-        db_name = params.pop('db_name', None)
         save_kwargs = {}
-        if db_name:
-            save_kwargs['using'] = db_name
+        # if db_name is None then save() function will use default db
+        if self.db_name:
+            save_kwargs['using'] = self.db_name
         self.instance = self.model_config.model(**params)
         # Perform validation
         try:
@@ -177,7 +181,6 @@ class ModelObject(object):
             raise
         self.instance.save(**save_kwargs)
         return self.instance
-
 
 
 class ModelBuilder(object):

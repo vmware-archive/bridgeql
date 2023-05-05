@@ -80,6 +80,21 @@ class TestAPIWriter(TestCase):
         resp = self.client.get(url, {'payload': json.dumps(params2)})
         self.assertDictEqual(params1, resp.json()['data'][0])
 
+    def test_update_machine_invalid_pk(self):
+        url = reverse('bridgeql_django_update', kwargs={
+            'app_label': 'machine',
+            'model_name': 'Machine',
+            'pk': 'invalid'
+        })
+        params1 = {'ip': '10.0.0.111',
+                   'name': 'updated-name-1',  # add datetime later
+                   }
+        resp = self.client.post(
+            url, {'payload': json.dumps(params1)})
+        # self.assertEqual(resp.json()['message'], '')
+        self.assertEqual(resp.status_code, 400)
+        self.assertFalse(resp.json()['success'])
+
     def test_update_non_existent_machine(self):
         machine_object_pk = 101
         url = reverse('bridgeql_django_update', kwargs={

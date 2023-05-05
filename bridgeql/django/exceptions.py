@@ -25,3 +25,7 @@ class InvalidQueryException(InvalidRequest):
 
 class InvalidBridgeQLSettings(Exception):
     pass
+
+
+class InvalidPKException(InvalidRequest):
+    pass
