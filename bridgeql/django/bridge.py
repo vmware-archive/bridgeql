@@ -37,8 +37,6 @@ def read_django_model(request):
 @require_http_methods(['POST', 'PATCH'])
 def write_django_model(request, app_label, model_name, **kwargs):
     try:
-        logger.debug(request.body)
-        logger.debug(type(request.body))
         params = get_json_request_body(request.body)
         db_name = params.pop('db_name', None)
         pk = kwargs.pop('pk', None)
