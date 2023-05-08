@@ -15,7 +15,7 @@ bridgeql_settings.validate()
 
 urlpatterns = [
     path('reader/', bridge.read_django_model, name='bridgeql_django_read'),
-    path('writer/(?P<app_label>\w+)/(?P<model_name>\w+)/(?P<pk>\d+)/',
+    path('updater/(?P<app_label>\w+)/(?P<model_name>\w+)/(?P<pk>\w+)/',
          bridge.write_django_model, name='bridgeql_django_update'),
     path('writer/(?P<app_label>\w+)/(?P<model_name>\w+)/',
          bridge.write_django_model, name='bridgeql_django_create'),

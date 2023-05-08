@@ -3,7 +3,12 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from django.apps import apps
-from django.core.exceptions import FieldDoesNotExist, FieldError, ValidationError
+from django.core.exceptions import (
+    FieldDoesNotExist,
+    FieldError,
+    ValidationError,
+    ObjectDoesNotExist
+)
 from django.db.models import QuerySet
 from django.db.models.base import ModelBase
 
@@ -14,7 +19,8 @@ from bridgeql.django.exceptions import (
     InvalidAppOrModelName,
     InvalidModelFieldName,
     InvalidQueryException,
-    InvalidPKException
+    InvalidPKException,
+    ObjectNotFound
 )
 from bridgeql.django.fields import Field, FieldAttributes
 from bridgeql.django.query import Query
@@ -154,16 +160,18 @@ class ModelObject(object):
                 self.instance = obj_manager.get(pk=pk)
             except ValueError as e:
                 raise InvalidPKException(str(e))
+            except ObjectDoesNotExist as e:
+                raise ObjectNotFound(str(e))
 
     def update(self, params):
         # TODO check if there are any restricted fields in data
-        for key, val in params.items():
-            setattr(self.instance, key, val)
-        # Perform validation
         try:
+            for key, val in params.items():
+                setattr(self.instance, key, val)
+            # Perform validation
             self.instance.full_clean()
-        except ValidationError:
-            raise
+        except (ValidationError, AttributeError) as e:
+            raise InvalidRequest(str(e))
         self.instance.save()
         return self.instance
 
@@ -177,8 +185,8 @@ class ModelObject(object):
         # Perform validation
         try:
             self.instance.full_clean()
-        except ValidationError:
-            raise
+        except ValidationError as e:
+            raise InvalidRequest(str(e))
         self.instance.save(**save_kwargs)
         return self.instance
 

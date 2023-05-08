@@ -34,7 +34,8 @@ class TestAPIWriter(TestCase):
             'os_id': 1
         }
         resp = self.client.post(
-            url, {'payload': json.dumps(params)}
+            url, json.dumps({"payload": params}),
+            content_type='application/json'
         )
         self.assertEqual(resp.status_code, 200)
 
@@ -48,7 +49,8 @@ class TestAPIWriter(TestCase):
             'ip': '10.0.0.211',
         }
         resp = self.client.post(
-            url, {'payload': json.dumps(params)}
+            url, json.dumps({"payload": params}),
+            content_type='application/json'
         )
         self.assertEqual(resp.status_code, 400)
 
@@ -62,8 +64,8 @@ class TestAPIWriter(TestCase):
         params1 = {'ip': '10.0.0.111',
                    'name': 'updated-name-1',  # add datetime later
                    }
-        resp = self.client.post(
-            url, {'payload': json.dumps(params1)})
+        resp = self.client.patch(
+            url, json.dumps({"payload": params1}), content_type='application/json')
         # self.assertEqual(resp.json()['message'], '')
         self.assertEqual(resp.status_code, 200)
         self.assertTrue(resp.json()['success'])
@@ -77,7 +79,7 @@ class TestAPIWriter(TestCase):
             'fields': ['ip', 'name']
         }
         url = reverse('bridgeql_django_read')
-        resp = self.client.get(url, {'payload': json.dumps(params2)})
+        resp = self.client.get(url, {"payload": json.dumps(params2)})
         self.assertDictEqual(params1, resp.json()['data'][0])
 
     def test_update_machine_invalid_pk(self):
@@ -89,8 +91,8 @@ class TestAPIWriter(TestCase):
         params1 = {'ip': '10.0.0.111',
                    'name': 'updated-name-1',  # add datetime later
                    }
-        resp = self.client.post(
-            url, {'payload': json.dumps(params1)})
+        resp = self.client.patch(
+            url, json.dumps({"payload": params1}), content_type='application/json')
         # self.assertEqual(resp.json()['message'], '')
         self.assertEqual(resp.status_code, 400)
         self.assertFalse(resp.json()['success'])
@@ -105,8 +107,9 @@ class TestAPIWriter(TestCase):
         params1 = {'ip': '10.0.0.111',
                    'name': 'updated-name-1',
                    }
-        resp = self.client.post(
-            url, {'payload': json.dumps(params1)})
+        resp = self.client.patch(
+            url, json.dumps({"payload": params1}),
+            content_type='application/json')
         self.assertEqual(resp.status_code, 404)
         self.assertEqual(resp.json()['message'],
                          'Machine matching query does not exist.')
@@ -123,7 +126,9 @@ class TestAPIWriter(TestCase):
                    'name': 'updated-name-1',
                    'stats': 'updating the new stats'
                    }
-        resp = self.client.post(url, {'payload': json.dumps(params1)})
+        resp = self.client.patch(url,
+                                 json.dumps({"payload": params1}),
+                                 content_type='application/json')
         self.assertEqual(resp.status_code, 400)
         self.assertEqual(resp.json()['message'], 'can\'t set attribute')
         self.assertFalse(resp.json()['success'])
