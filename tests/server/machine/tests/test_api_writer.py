@@ -97,6 +97,21 @@ class TestAPIWriter(TestCase):
         self.assertEqual(resp.status_code, 400)
         self.assertFalse(resp.json()['success'])
 
+    def test_update_machine_field_not_exist(self):
+        url = reverse('bridgeql_django_update', kwargs={
+            'app_label': 'machine',
+            'model_name': 'Machine',
+            'pk': 10
+        })
+        params1 = {'ip': '10.0.0.111',
+                   'xx': 'updated-name-1',  # add datetime later
+                   }
+        resp = self.client.patch(
+            url, json.dumps({"payload": params1}), content_type='application/json')
+        # self.assertEqual(resp.json()['message'], '')
+        self.assertEqual(resp.status_code, 400)
+        self.assertFalse(resp.json()['success'])
+
     def test_update_non_existent_machine(self):
         machine_object_pk = 101
         url = reverse('bridgeql_django_update', kwargs={

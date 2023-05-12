@@ -11,7 +11,10 @@ from bridgeql.utils import load_function
 
 DEFAULTS = {
     'BRIDGEQL_RESTRICTED_MODELS': {},
-    'BRIDGEQL_AUTHENTICATION_DECORATOR': '',
+    'BRIDGEQL_AUTHENTICATION_DECORATOR': {
+        'reader': '',
+        'writer': ''
+    },
     'BRIDGEQL_ALLOWED_APPS': []
 }
 
@@ -65,14 +68,28 @@ class BridgeQLSettings:
 
     def _validate_auth_decorator(self):
         # check for the valid auth decorator
-        if self.BRIDGEQL_AUTHENTICATION_DECORATOR:
-            try:
-                load_function(self.BRIDGEQL_AUTHENTICATION_DECORATOR)
-            except (AttributeError, ImportError) as e:
-                raise InvalidBridgeQLSettings(
-                    'Wrong value for settings.BRIDGEQL_AUTHENTICATION_DECORATOR %s'
-                    % self.BRIDGEQL_AUTHENTICATION_DECORATOR
-                )
+        if not isinstance(self.BRIDGEQL_AUTHENTICATION_DECORATOR, dict):
+            raise InvalidBridgeQLSettings(
+                'Wrong type for settings.BRIDGEQL_AUTHENTICATION_DECORATOR, '
+                'expected dict, got %s'
+                % type(self.BRIDGEQL_AUTHENTICATION_DECORATOR)
+            )
+        read_auth = self.BRIDGEQL_AUTHENTICATION_DECORATOR.get(
+            'reader', None
+        )
+        write_auth = self.BRIDGEQL_AUTHENTICATION_DECORATOR.get(
+            'writer', None
+        )
+        try:
+            if read_auth:
+                load_function(read_auth)
+            if write_auth:
+                load_function(write_auth)
+        except (AttributeError, ImportError):
+            raise InvalidBridgeQLSettings(
+                'Wrong value for settings.BRIDGEQL_AUTHENTICATION_DECORATOR %s'
+                % self.BRIDGEQL_AUTHENTICATION_DECORATOR
+            )
         return True
 
     def validate(self):

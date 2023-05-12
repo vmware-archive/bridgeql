@@ -11,6 +11,7 @@ from django.core.exceptions import (
 )
 from django.db.models import QuerySet
 from django.db.models.base import ModelBase
+from django.db.utils import IntegrityError
 
 from bridgeql.django import logger
 from bridgeql.django.exceptions import (
@@ -167,9 +168,15 @@ class ModelObject(object):
         # TODO check if there are any restricted fields in data
         try:
             for key, val in params.items():
+                if hasattr(self.instance, key):
+                    setattr(self.instance, key, val)
+                else:
+                    raise InvalidRequest('%s does not have field %s'
+                                         % (self.instance._meta.model.__name__,
+                                            key))
                 setattr(self.instance, key, val)
             # Perform validation
-            self.instance.full_clean()
+            self.instance.validate_unique()
         except (ValidationError, AttributeError) as e:
             raise InvalidRequest(str(e))
         self.instance.save()
@@ -184,10 +191,10 @@ class ModelObject(object):
         self.instance = self.model_config.model(**params)
         # Perform validation
         try:
-            self.instance.full_clean()
-        except ValidationError as e:
+            self.instance.validate_unique()
+            self.instance.save(**save_kwargs)
+        except (ValidationError, IntegrityError) as e:
             raise InvalidRequest(str(e))
-        self.instance.save(**save_kwargs)
         return self.instance
 
 
