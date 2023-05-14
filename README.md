@@ -128,18 +128,29 @@ ______
 
 **BRIDGEQL_AUTHENTICATION_DECORATOR**
 
-Default: `''` (Empty string)
+Default: 
+```
+{
+  'reader': '',
+  'writer': ''
+}
+```
 
 Above setting allows you to use an authentication decorator to authenticate your client's requests.
-You can provide a custom authentication decorator whichever suits your application usecase, e.g login_required, same_subnet, etc.
+You can provide a custom authentication decorator, 
+for reader and writer separately, whichever suits your application usecase, e.g login_required, same_subnet, etc.
 
 Default value for `BRIDGEQL_AUTHENTICATION_DECORATOR` will allow you to access API without authentication.
 
 ```python
-BRIDGEQL_AUTHENTICATION_DECORATOR = 'bridgeql.auth.basic_auth'
+BRIDGEQL_AUTHENTICATION_DECORATOR = {
+    'reader': 'bridgeql.auth.basic_auth',
+    'writer': 'bridgeql.auth.basic_auth'
+}
 ```
 
-`bridgeql.auth.basic_auth` is available as a basic authentication method where you can pass authorization header as `Authorization: Basic base64(username:password)` for each request.
+`bridgeql.auth.basic_auth` is available as a basic authentication method where you can pass authorization header as 
+`Authorization: Basic base64(username:password)` for each request.
 ____
 
 ### Build & Run

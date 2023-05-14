@@ -150,7 +150,7 @@ class ModelObject(object):
     def __init__(self, app_label, model_name, **kwargs):
         self.model_config = ModelConfig(app_label, model_name)
         self.instance = None
-        self.db_name = kwargs.pop('db_name', None)
+        self.db_name = kwargs.pop('bridgeql_writer_db', None)
         pk = kwargs.pop('pk', None)
         if pk:
             obj_manager = self.model_config.model.objects
@@ -177,9 +177,9 @@ class ModelObject(object):
                 setattr(self.instance, key, val)
             # Perform validation
             self.instance.validate_unique()
-        except (ValidationError, AttributeError) as e:
+            self.instance.save()
+        except (ValidationError, IntegrityError, AttributeError) as e:
             raise InvalidRequest(str(e))
-        self.instance.save()
         return self.instance
 
     def create(self, params):

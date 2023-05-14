@@ -108,8 +108,9 @@ class TestAPIWriter(TestCase):
                    }
         resp = self.client.patch(
             url, json.dumps({"payload": params1}), content_type='application/json')
-        # self.assertEqual(resp.json()['message'], '')
         self.assertEqual(resp.status_code, 400)
+        self.assertEqual(resp.json()['message'],
+                         'Machine does not have field xx')
         self.assertFalse(resp.json()['success'])
 
     def test_update_non_existent_machine(self):

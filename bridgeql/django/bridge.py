@@ -41,18 +41,21 @@ def read_django_model(request):
 def write_django_model(request, app_label, model_name, **kwargs):
     try:
         params = get_json_request_body(request.body)
-        db_name = params.pop('db_name', None)
+        db_name = params.pop('bridgeql_writer_db', None)
         pk = kwargs.pop('pk', None)
         mo = ModelObject(app_label, model_name, db_name=db_name, pk=pk)
         if mo.instance is None and request.method == 'POST':
             obj = mo.create(params)
-            msg = 'Added new %s model, pk = %s' % (
+            msg = 'Added new %s model, pk=%s' % (
                 obj._meta.model.__name__,
                 obj.pk
             )
         elif mo.instance and request.method == 'PATCH':
             obj = mo.update(params)
-            msg = 'Updated fields %s' % ", ".join(params.keys())
+            msg = '%s updated, pk=%s, fields %s' % (
+                obj._meta.model.__name__,
+                obj.pk,
+                ", ".join(params.keys()))
         else:
             raise InvalidRequest(
                 'Invalid request method %s for the url' % request.method)
