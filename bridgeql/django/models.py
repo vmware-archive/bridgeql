@@ -3,9 +3,15 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 from django.apps import apps
-from django.core.exceptions import FieldDoesNotExist, FieldError
+from django.core.exceptions import (
+    FieldDoesNotExist,
+    FieldError,
+    ValidationError,
+    ObjectDoesNotExist
+)
 from django.db.models import QuerySet
 from django.db.models.base import ModelBase
+from django.db.utils import IntegrityError
 
 from bridgeql.django import logger
 from bridgeql.django.exceptions import (
@@ -14,6 +20,8 @@ from bridgeql.django.exceptions import (
     InvalidAppOrModelName,
     InvalidModelFieldName,
     InvalidQueryException,
+    InvalidPKException,
+    ObjectNotFound
 )
 from bridgeql.django.fields import Field, FieldAttributes
 from bridgeql.django.query import Query
@@ -136,6 +144,58 @@ class ModelConfig(object):
                             raise ForbiddenModelOrField('%s is restricted for model %s' %
                                                         (prop_obj.name, parent.full_model_name))
         return True
+
+
+class ModelObject(object):
+    def __init__(self, app_label, model_name, **kwargs):
+        self.model_config = ModelConfig(app_label, model_name)
+        self.instance = None
+        self.db_name = kwargs.pop('bridgeql_writer_db', None)
+        pk = kwargs.pop('pk', None)
+        if pk:
+            obj_manager = self.model_config.model.objects
+            if self.db_name:
+                obj_manager = obj_manager.using(self.db_name)
+            # throw error if more than one value found
+            try:
+                self.instance = obj_manager.get(pk=pk)
+            except ValueError as e:
+                raise InvalidPKException(str(e))
+            except ObjectDoesNotExist as e:
+                raise ObjectNotFound(str(e))
+
+    def update(self, params):
+        # TODO check if there are any restricted fields in data
+        try:
+            for key, val in params.items():
+                if hasattr(self.instance, key):
+                    setattr(self.instance, key, val)
+                else:
+                    raise InvalidRequest('%s does not have field %s'
+                                         % (self.instance._meta.model.__name__,
+                                            key))
+                setattr(self.instance, key, val)
+            # Perform validation
+            self.instance.validate_unique()
+            self.instance.save()
+        except (ValidationError, IntegrityError, AttributeError) as e:
+            raise InvalidRequest(str(e))
+        return self.instance
+
+    def create(self, params):
+        # TODO validate data
+        save_kwargs = {}
+        # if db_name is None then save() function will use default db
+        if self.db_name:
+            save_kwargs['using'] = self.db_name
+        self.instance = self.model_config.model(**params)
+        # Perform validation
+        try:
+            self.instance.validate_unique()
+            self.instance.save(**save_kwargs)
+        except (ValidationError, IntegrityError) as e:
+            raise InvalidRequest(str(e))
+        return self.instance
 
 
 class ModelBuilder(object):

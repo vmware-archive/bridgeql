@@ -7,14 +7,18 @@ try:
 except ImportError:
     from django.conf.urls import url as path
 
-from bridgeql.django.bridge import read_django_model
+from bridgeql.django import bridge
 from bridgeql.django.settings import bridgeql_settings
 from bridgeql.django.views import index, generate_bridgeql_schema
 
 bridgeql_settings.validate()
 
 urlpatterns = [
-    path('reader/', read_django_model, name='bridgeql_django_read'),
+    path('read/', bridge.read_django_model, name='bridgeql_django_read'),
+    path('update/(?P<app_label>\w+)/(?P<model_name>\w+)/(?P<pk>\w+)/',
+         bridge.write_django_model, name='bridgeql_django_update'),
+    path('create/(?P<app_label>\w+)/(?P<model_name>\w+)/',
+         bridge.write_django_model, name='bridgeql_django_create'),
     path('schema/', generate_bridgeql_schema, name='generate_bridgeql_schema'),
     path('', index, name='bridgeql_django_index'),
 ]
