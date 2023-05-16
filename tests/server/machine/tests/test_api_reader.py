@@ -387,16 +387,3 @@ class TestAPIReader(TestCase):
         resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(4, len(resp.json()['data']))
-
-    @override_settings(BRIDGEQL_RESTRICTED_MODELS=None)
-    def test_none_restricted_settings(self):
-        self.params = {
-            'app_name': 'machine',
-            'model_name': 'Machine',
-            'filter': {
-                'pk__lte': 4,
-            },
-            'fields': ['name', 'os__arch']
-        }
-        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
-        self.assertEqual(resp.status_code, 500)

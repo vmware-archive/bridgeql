@@ -25,8 +25,18 @@ def basic_auth(api):
     return wrap
 
 
-if bridgeql_settings.BRIDGEQL_AUTHENTICATION_DECORATOR:
-    auth_decorator = load_function(
-        bridgeql_settings.BRIDGEQL_AUTHENTICATION_DECORATOR)
+reader_auth = bridgeql_settings.BRIDGEQL_AUTHENTICATION_DECORATOR.get(
+    'reader', None
+)
+writer_auth = bridgeql_settings.BRIDGEQL_AUTHENTICATION_DECORATOR.get(
+    'writer', None
+)
+if reader_auth:
+    read_auth_decorator = load_function(reader_auth)
 else:
-    def auth_decorator(func): return func
+    def read_auth_decorator(func): return func
+
+if writer_auth:
+    write_auth_decorator = load_function(writer_auth)
+else:
+    def write_auth_decorator(func): return func
