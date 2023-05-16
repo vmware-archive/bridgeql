@@ -266,8 +266,6 @@ class ModelBuilder(object):
                         self.qset = func(*value)
                     except FieldError as e:
                         raise InvalidModelFieldName(str(e))
-                    except AttributeError:
-                        raise InvalidRequest('Cannot run count on aggregate dict')
             elif isinstance(value, bool) and value:
                 self.qset = func()
 
