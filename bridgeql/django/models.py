@@ -9,7 +9,7 @@ from django.core.exceptions import (
     ValidationError,
     ObjectDoesNotExist
 )
-from django.db.models import QuerySet
+from django.db.models import QuerySet, aggregates
 from django.db.models.base import ModelBase
 from django.db.utils import IntegrityError
 
@@ -205,6 +205,7 @@ class ModelBuilder(object):
         ('order_by', 'order_by', list),
         ('offset', 'offset', int),
         ('limit', 'limit', int),
+        ('aggregate', 'aggregate', dict),
         ('fields', 'values', list),
         ('count', 'count', bool),
     ]
@@ -227,7 +228,7 @@ class ModelBuilder(object):
             # offset and limit operation will return None
             func = getattr(self.qset, qset_opt, None)
             value = getattr(self.params, opt, None)
-            # do not execute operation if value is not passed
+            # do not execute operation if value is not passed,
             # or it does not have default value specified in
             # Parameters class such as [], {}, False
             if value is None:
@@ -237,7 +238,20 @@ class ModelBuilder(object):
                                             ' expected %s'
                                             % (type(value), opt, opt_type))
             if isinstance(value, dict):
-                self.qset = func(**value)
+                if qset_opt == 'aggregate':
+                    aggr_arg = []
+                    for aggr_opt, aggr_field in value.items():
+                        aggr_func = getattr(aggregates, aggr_opt, None)
+                        if aggr_func is None:
+                            raise InvalidRequest('Invalid aggregate function %s' %
+                                                 aggr_opt)
+                        aggr_func_f = aggr_func(aggr_field)
+                        aggr_arg.append(aggr_func_f)
+                        self.qset = func(*aggr_arg)
+                    # stop all operations after aggregate
+                    break
+                else:
+                    self.qset = func(**value)
             elif qset_opt == 'offset':
                 self.qset = self.qset[self.params.offset:]
             elif qset_opt == 'limit':

@@ -362,6 +362,53 @@ class TestAPIReader(TestCase):
         self.assertEqual(resp.status_code, 400)
         self.assertFalse(resp.json()['success'])
 
+    def test_aggregate_query(self):
+        self.params = {
+            'app_name': 'machine',
+            'model_name': 'Machine',
+            'aggregate': {
+                'Max': 'cpu_count',
+                'Avg': 'memory'
+            }
+        }
+        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        self.assertEqual(resp.status_code, 200)
+        resp_json = resp.json()
+        self.assertEqual(14, resp_json['data']['cpu_count__max'])
+        self.assertEqual(3383.5, resp_json['data']['memory__avg'])
+
+    def test_aggregate_with_count_query(self):
+        self.params = {
+            'app_name': 'machine',
+            'model_name': 'Machine',
+            'aggregate': {
+                'Max': 'cpu_count',
+                'Avg': 'memory',
+                'Count': 'os'
+            },
+            'count': True
+        }
+        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        self.assertEqual(resp.status_code, 200)
+        resp_json = resp.json()
+        self.assertEqual(14, resp_json['data']['cpu_count__max'])
+        self.assertEqual(3383.5, resp_json['data']['memory__avg'])
+        self.assertEqual(100, resp_json['data']['os__count'])
+
+    def test_invalid_aggregate_query(self):
+        self.params = {
+            'app_name': 'machine',
+            'model_name': 'Machine',
+            'aggregate': {
+                'Mix': 'cpu_count',
+            }
+        }
+        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        self.assertEqual(resp.status_code, 400)
+        resp_json = resp.json()
+        self.assertFalse(resp_json['success'])
+        self.assertEqual('Invalid aggregate function Mix', resp_json['message'])
+
     @override_settings(BRIDGEQL_AUTHENTICATION_DECORATOR='server.auth.localtest')
     def test_custom_auth_decorator(self):
         self.params = {
