@@ -362,6 +362,18 @@ class TestAPIReader(TestCase):
         self.assertEqual(resp.status_code, 400)
         self.assertFalse(resp.json()['success'])
 
+    def test_aggregate_query(self):
+        self.params = {
+            'app_name': 'machine',
+            'model_name': 'Machine',
+            'aggregate': {
+                'Max': 'cpu_count'
+            }
+        }
+        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(14, resp.json()['data']['cpu_count__max'])
+
     @override_settings(BRIDGEQL_AUTHENTICATION_DECORATOR='server.auth.localtest')
     def test_custom_auth_decorator(self):
         self.params = {
