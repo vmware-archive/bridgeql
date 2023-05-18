@@ -31,11 +31,11 @@ from bridgeql.types import DBRows
 
 
 class Parameters(object):
-    def __init__(self, params):
-        self.params = params
-        self.db_name = None  # db to connect
-        self.app_name = None
-        self.model_name = None
+    def __init__(self, **kwargs):
+        self.params = kwargs.get('params')
+        self.db_name = kwargs.get('db_name')  # db to connect
+        self.app_name = kwargs.get('app_name')
+        self.model_name = kwargs.get('model_name')
         self.filter = {}
         self.exclude = {}
         self.fields = []
@@ -211,8 +211,14 @@ class ModelBuilder(object):
         ('count', 'count', bool),
     ]
 
-    def __init__(self, params):
-        self.params = Parameters(params)
+    def __init__(self, db_name, app_name, model_name, params):
+        kwargs = {
+            'db_name': db_name,
+            'app_name': app_name,
+            'model_name': model_name,
+            'params': params
+        }
+        self.params = Parameters(**kwargs)
         self.qset = None
 
         self.model_config = ModelConfig(

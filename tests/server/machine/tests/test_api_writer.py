@@ -81,7 +81,11 @@ class TestAPIWriter(TestCase):
             },
             'fields': ['ip', 'name']
         }
-        url = reverse('bridgeql_django_read')
+        url = reverse('bridgeql_django_read', kwargs={
+            'db_name': 'default',
+            'app_label': 'machine',
+            'model_name': 'Machine'
+        })
         resp = self.client.get(url, {"payload": json.dumps(params2)})
         self.assertDictEqual(params1, resp.json()['data'][0])
 
@@ -173,7 +177,11 @@ class TestAPIWriter(TestCase):
             },
             'fields': ['ip', 'name']
         }
-        url = reverse('bridgeql_django_read')
+        url = reverse('bridgeql_django_read', kwargs={
+            'db_name': 'default',
+            'app_label': 'machine',
+            'model_name': 'Machine'
+        })
         resp = self.client.get(url, {"payload": json.dumps(params2)})
         self.assertListEqual([], resp.json()['data'])
 

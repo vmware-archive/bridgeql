@@ -17,19 +17,28 @@ class TestAPIReader(TestCase):
     fixtures = [os.path.join(settings.BASE_DIR, 'machine_tests.json'), ]
 
     def setUp(self):
-        self.url = url_reverse('bridgeql_django_read')
         self.client = Client()
+
+    def getURL(self, **kwargs):
+        db_name = kwargs.get('db_name', 'default')
+        app_label = kwargs.get('app_label', 'machine')
+        # default model name is Machine
+        model_name = kwargs.get('model_name', 'Machine')
+        return url_reverse('bridgeql_django_read', kwargs={
+            'db_name': db_name,
+            'app_label': app_label,
+            'model_name': model_name
+        })
 
     def test_get_machine(self):
         self.params = {
-            'app_name': 'machine',
-            'model_name': 'Machine',
             'filter': {
                 'name': 'machine-name-1'
             },
             'fields': ['ip', 'name', 'created_at', 'stats', 'os__name']
         }
-        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        resp = self.client.get(
+            self.getURL(), {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
         resp_json = resp.json()
         self.assertEqual(resp_json['data'][0]['ip'], "10.0.0.1")
@@ -43,47 +52,42 @@ class TestAPIReader(TestCase):
 
     def test_get_os(self):
         self.params = {
-            'app_name': 'machine',
-            'model_name': 'OperatingSystem',
             'filter': {
                 'name': 'os-name-1'
             },
             'fields': ['arch', 'full_name']
         }
-        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        resp = self.client.get(self.getURL(model_name='OperatingSystem'), {
+                               'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
         resp_json = resp.json()
         self.assertEqual(resp_json['data'][0]['arch'], "arch-name-1")
 
     def test_get_only_property(self):
         self.params = {
-            'app_name': 'machine',
-            'model_name': 'Machine',
             'filter': {
                 'name': 'machine-name-1'
             },
             'fields': ['stats']
         }
-        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        resp = self.client.get(
+            self.getURL(), {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
         resp_json = resp.json()
         self.assertEqual(resp_json['data'][0]['stats'], "CPU: 2, Mem 1GB")
 
     def test_empty_fields(self):
         self.params = {
-            'app_name': 'machine',
-            'model_name': 'Machine',
             'filter': {
                 'name': 'machine-name-1'
             }
         }
-        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        resp = self.client.get(
+            self.getURL(), {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
 
     def test_or_query(self):
         self.params = {
-            'app_name': 'machine',
-            'model_name': 'Machine',
             'filter': {
                 'os': 1,
                 '__or': [
@@ -93,7 +97,8 @@ class TestAPIReader(TestCase):
             },
             'fields': ['ip']
         }
-        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        resp = self.client.get(
+            self.getURL(), {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
         resp_json = resp.json()
         # matching results are machine-name-2, machine-name-1
@@ -101,8 +106,6 @@ class TestAPIReader(TestCase):
 
     def test_exclude_query(self):
         self.params = {
-            'app_name': 'machine',
-            'model_name': 'Machine',
             'filter': {
                 'os__name': 'os-name-1'
             },
@@ -111,59 +114,55 @@ class TestAPIReader(TestCase):
                 'name': 'machine-name-11'
             }
         }
-        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        resp = self.client.get(
+            self.getURL(), {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
         res_json = resp.json()
         self.assertEqual(9, len(res_json['data']))
 
     def test_distinct_query(self):
         self.params = {
-            'app_name': 'machine',
-            'model_name': 'Machine',
             'filter': {
                 'name__startswith': 'machine-name'
             },
             'fields': ['os__name'],
             'distinct': True
         }
-        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        resp = self.client.get(
+            self.getURL(), {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
         res_json = resp.json()
         self.assertEqual(10, len(res_json['data']))
 
     def test_count_query(self):
         self.params = {
-            'app_name': 'machine',
-            'model_name': 'Machine',
             'filter': {
                 'os__name': 'os-name-5'
             },
             'count': True
         }
-        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        resp = self.client.get(
+            self.getURL(), {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
         res_json = resp.json()
         self.assertEqual(10, res_json['data'])
 
     def test_count_false_query(self):
         self.params = {
-            'app_name': 'machine',
-            'model_name': 'Machine',
             'filter': {
                 'os__name': 'os-name-5'
             },
             'fields': ['name'],
             'count': False
         }
-        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        resp = self.client.get(
+            self.getURL(), {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
         res_json = resp.json()
         self.assertEqual(10, len(res_json['data']))
 
     def test_count_distinct_query(self):
         self.params = {
-            'app_name': 'machine',
-            'model_name': 'Machine',
             'filter': {
                 'name__startswith': 'machine-name'
             },
@@ -171,15 +170,14 @@ class TestAPIReader(TestCase):
             'distinct': True,
             'count': True
         }
-        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        resp = self.client.get(
+            self.getURL(), {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
         res_json = resp.json()
         self.assertEqual(8, res_json['data'])
 
     def test_limit_query(self):
         self.params = {
-            'app_name': 'machine',
-            'model_name': 'Machine',
             'filter': {
                 'name__startswith': 'machine-name-5'
             },
@@ -188,7 +186,8 @@ class TestAPIReader(TestCase):
             'limit': 2,
             'offset': 3
         }
-        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        resp = self.client.get(
+            self.getURL(), {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
         res_json = resp.json()
         result = [
@@ -200,14 +199,13 @@ class TestAPIReader(TestCase):
     # add properties
     def test_get_fields(self):
         self.params = {
-            'app_name': 'machine',
-            'model_name': 'Machine',
             'filter': {
                 'created_at__lte': "2023-03-01"
             },
             'fields': ['id', 'ip', 'created_at']
         }
-        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        resp = self.client.get(
+            self.getURL(), {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
         res_json = resp.json()
         self.assertEqual(83, len(res_json['data']))
@@ -215,14 +213,13 @@ class TestAPIReader(TestCase):
     # add properties
     def test_get_one_field(self):
         self.params = {
-            'app_name': 'machine',
-            'model_name': 'Machine',
             'filter': {
                 'pk': 4,
             },
             'fields': ['os__name', 'pk']
         }
-        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        resp = self.client.get(
+            self.getURL(), {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
         res_json = resp.json()
         self.assertEqual(1, len(res_json['data']))
@@ -246,132 +243,122 @@ class TestAPIReader(TestCase):
 
     def test_invalid_field(self):
         self.params = {
-            'app_name': 'machine',
-            'model_name': 'Machine',
             'filter': {
                 'pk': 4,
             },
             'fields': ['invalid']
         }
-        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        resp = self.client.get(
+            self.getURL(), {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 400)
         resp_json = resp.json()
         self.assertFalse(resp_json['success'])
 
     def test_restricted_model(self):
         self.params = {
-            'app_name': 'auth',
-            'model_name': 'User',
             'filter': {
                 'username': 'bridgeql',
             },
             'fields': ['username', 'last_login'],
         }
-        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        resp = self.client.get(self.getURL(app_label='auth', model_name='User'), {
+                               'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 403)
         self.assertFalse(resp.json()['success'])
 
     def test_restricted_field(self):
         self.params = {
-            'app_name': 'machine',
-            'model_name': 'OperatingSystem',
             'filter': {
                 'name__startswith': 'os-name-',
             },
             'fields': ['name', 'license_key'],
         }
-        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        resp = self.client.get(self.getURL(model_name='OperatingSystem'), {
+                               'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 403)
         self.assertFalse(resp.json()['success'])
 
     def test_restricted_fk_field(self):
         self.params = {
-            'app_name': 'machine',
-            'model_name': 'Machine',
             'filter': {
                 'name__startswith': 'machine-name-',
             },
             'fields': ['os__license_key', 'name'],
         }
-        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        resp = self.client.get(
+            self.getURL(), {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 403)
         self.assertFalse(resp.json()['success'])
 
     def test_non_restricted_field(self):
         self.params = {
-            'app_name': 'machine',
-            'model_name': 'OperatingSystem',
             'filter': {
                 'name__startswith': 'os-name-',
             },
             'fields': ['name', 'arch'],
         }
-        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        resp = self.client.get(self.getURL(model_name='OperatingSystem'), {
+                               'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
         self.assertTrue(resp.json()['success'])
 
     def test_invalid_model_name(self):
         self.params = {
-            'app_name': 'machine',
-            'model_name': 'InvalidModel',
             'filter': {
                 'name__startswith': 'os-name-',
             },
             'fields': ['name', 'arch'],
         }
-        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        resp = self.client.get(self.getURL(model_name='InvalidModel'), {
+                               'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 400)
         self.assertFalse(resp.json()['success'])
 
     def test_invalid_app_name(self):
         self.params = {
-            'app_name': 'InvalidApp',
-            'model_name': 'Machine',
             'filter': {
                 'name__startswith': 'os-name-',
             },
             'fields': ['name', 'arch'],
         }
-        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        resp = self.client.get(self.getURL(app_label='InvalidApp'), {
+                               'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 400)
         self.assertFalse(resp.json()['success'])
 
     def test_model_isnull(self):
         self.params = {
-            'app_name': 'machine',
-            'model_name': 'Machine',
             'filter': {
                 'os__isnull': True,
             },
             'fields': ['name', 'os__arch'],
         }
-        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        resp = self.client.get(
+            self.getURL(), {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
 
     def test_invalid_query_type(self):
         self.params = {
-            'app_name': 'machine',
-            'model_name': 'Machine',
             'filter': {
                 'os__isnull': True,
             },
             'fields': ['name', 'os__arch'],
             'count': 'yes_invalid'
         }
-        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        resp = self.client.get(
+            self.getURL(), {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 400)
         self.assertFalse(resp.json()['success'])
 
     def test_aggregate_query(self):
         self.params = {
-            'app_name': 'machine',
-            'model_name': 'Machine',
             'aggregate': {
                 'Max': 'cpu_count',
                 'Avg': 'memory'
             }
         }
-        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        resp = self.client.get(
+            self.getURL(), {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
         resp_json = resp.json()
         self.assertEqual(14, resp_json['data']['cpu_count__max'])
@@ -379,8 +366,6 @@ class TestAPIReader(TestCase):
 
     def test_aggregate_with_count_query(self):
         self.params = {
-            'app_name': 'machine',
-            'model_name': 'Machine',
             'aggregate': {
                 'Max': 'cpu_count',
                 'Avg': 'memory',
@@ -388,7 +373,8 @@ class TestAPIReader(TestCase):
             },
             'count': True
         }
-        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        resp = self.client.get(
+            self.getURL(), {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
         resp_json = resp.json()
         self.assertEqual(14, resp_json['data']['cpu_count__max'])
@@ -397,13 +383,12 @@ class TestAPIReader(TestCase):
 
     def test_invalid_aggregate_query(self):
         self.params = {
-            'app_name': 'machine',
-            'model_name': 'Machine',
             'aggregate': {
                 'Mix': 'cpu_count',
             }
         }
-        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        resp = self.client.get(
+            self.getURL(), {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 400)
         resp_json = resp.json()
         self.assertFalse(resp_json['success'])
@@ -413,13 +398,12 @@ class TestAPIReader(TestCase):
     @override_settings(BRIDGEQL_AUTHENTICATION_DECORATOR='server.auth.localtest')
     def test_custom_auth_decorator(self):
         self.params = {
-            'app_name': 'machine',
-            'model_name': 'Machine',
             'filter': {
                 'pk__lte': 4,
             },
             'fields': ['name', 'os__arch']
         }
-        resp = self.client.get(self.url, {'payload': json.dumps(self.params)})
+        resp = self.client.get(
+            self.getURL(), {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(4, len(resp.json()['data']))
