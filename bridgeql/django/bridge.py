@@ -8,14 +8,29 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 
 from bridgeql.django.auth import read_auth_decorator, write_auth_decorator
-from bridgeql.django.exceptions import (
-    BridgeqlException,
-    InvalidRequest
-)
+from bridgeql.django.exceptions import BridgeqlException
 from bridgeql.django.helpers import JSONResponse, get_json_request_body
 from bridgeql.django.models import ModelBuilder, ModelObject
 
-# TODO refine error handling
+
+@csrf_exempt
+@require_http_methods(['POST'])
+@write_auth_decorator
+def create_django_model(request, db_name, app_label, model_name):
+    try:
+        params = get_json_request_body(request.body)
+        mo = ModelObject(app_label, model_name, db_name)
+        obj = mo.create(params)
+        msg = 'Added new object of %s with pk=%s' % (
+            model_name,
+            obj.pk
+        )
+        res = {'data': obj.id, 'message': msg, 'success': True}
+        return JSONResponse(res, status=201)
+    except BridgeqlException as e:
+        e.log()
+        res = {'data': [], 'message': str(e.detail), 'success': False}
+        return JSONResponse(res, status=e.status_code)
 
 
 @require_http_methods(['GET'])
@@ -42,12 +57,6 @@ def update_django_model(request, db_name, app_label, model_name, pk):
     try:
         params = get_json_request_body(request.body)
         mo = ModelObject(app_label, model_name, db_name, pk=pk)
-        # if mo.instance is None and request.method == 'POST':
-        #     obj = mo.create(params)
-        #     msg = 'Added new %s model, pk=%s' % (
-        #         obj._meta.model.__name__,
-        #         obj.pk
-        #     )
         obj = mo.update(params)
         msg = 'Updated %s with pk=%s, fields=%s' % (
             model_name,
@@ -55,26 +64,6 @@ def update_django_model(request, db_name, app_label, model_name, pk):
             ", ".join(params.keys()))
         res = {'data': obj.id, 'message': msg, 'success': True}
         return JSONResponse(res)
-    except BridgeqlException as e:
-        e.log()
-        res = {'data': [], 'message': str(e.detail), 'success': False}
-        return JSONResponse(res, status=e.status_code)
-
-
-@csrf_exempt
-@require_http_methods(['POST'])
-@write_auth_decorator
-def create_django_model(request, db_name, app_label, model_name):
-    try:
-        params = get_json_request_body(request.body)
-        mo = ModelObject(app_label, model_name, db_name)
-        obj = mo.create(params)
-        msg = 'Added new object of %s with pk=%s' % (
-            model_name,
-            obj.pk
-        )
-        res = {'data': obj.id, 'message': msg, 'success': True}
-        return JSONResponse(res, status=201)
     except BridgeqlException as e:
         e.log()
         res = {'data': [], 'message': str(e.detail), 'success': False}
