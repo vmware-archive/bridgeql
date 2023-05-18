@@ -36,30 +36,60 @@ def read_django_model(request):
 
 # no session to ride, hence no need for csrf protection
 @csrf_exempt
-@require_http_methods(['POST', 'PATCH'])
+@require_http_methods(['PATCH'])
 @write_auth_decorator
-def write_django_model(request, app_label, model_name, **kwargs):
+def update_django_model(request, db_name, app_label, model_name, pk):
     try:
         params = get_json_request_body(request.body)
-        db_name = params.pop('bridgeql_writer_db', None)
-        pk = kwargs.pop('pk', None)
-        mo = ModelObject(app_label, model_name, db_name=db_name, pk=pk)
-        if mo.instance is None and request.method == 'POST':
-            obj = mo.create(params)
-            msg = 'Added new %s model, pk=%s' % (
-                obj._meta.model.__name__,
-                obj.pk
-            )
-        elif mo.instance and request.method == 'PATCH':
-            obj = mo.update(params)
-            msg = '%s updated, pk=%s, fields %s' % (
-                obj._meta.model.__name__,
-                obj.pk,
-                ", ".join(params.keys()))
-        else:
-            raise InvalidRequest(
-                'Invalid request method %s for the url' % request.method)
+        mo = ModelObject(app_label, model_name, db_name, pk=pk)
+        # if mo.instance is None and request.method == 'POST':
+        #     obj = mo.create(params)
+        #     msg = 'Added new %s model, pk=%s' % (
+        #         obj._meta.model.__name__,
+        #         obj.pk
+        #     )
+        obj = mo.update(params)
+        msg = 'Updated %s with pk=%s, fields=%s' % (
+            model_name,
+            obj.pk,
+            ", ".join(params.keys()))
         res = {'data': obj.id, 'message': msg, 'success': True}
+        return JSONResponse(res)
+    except BridgeqlException as e:
+        e.log()
+        res = {'data': [], 'message': str(e.detail), 'success': False}
+        return JSONResponse(res, status=e.status_code)
+
+
+@csrf_exempt
+@require_http_methods(['POST'])
+@write_auth_decorator
+def create_django_model(request, db_name, app_label, model_name):
+    try:
+        params = get_json_request_body(request.body)
+        mo = ModelObject(app_label, model_name, db_name)
+        obj = mo.create(params)
+        msg = 'Added new object of %s with pk=%s' % (
+            model_name,
+            obj.pk
+        )
+        res = {'data': obj.id, 'message': msg, 'success': True}
+        return JSONResponse(res, status=201)
+    except BridgeqlException as e:
+        e.log()
+        res = {'data': [], 'message': str(e.detail), 'success': False}
+        return JSONResponse(res, status=e.status_code)
+
+
+@csrf_exempt
+@require_http_methods(['DELETE'])
+@write_auth_decorator
+def delete_django_model(request, db_name, app_label, model_name, pk):
+    try:
+        mo = ModelObject(app_label, model_name, db_name, pk=pk)
+        obj = mo.delete()
+        msg = 'Deleted %s with pk=%s' % (model_name, pk)
+        res = {'data': obj, 'message': msg, 'success': True}
         return JSONResponse(res)
     except BridgeqlException as e:
         e.log()

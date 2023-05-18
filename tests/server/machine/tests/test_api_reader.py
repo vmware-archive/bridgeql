@@ -407,7 +407,8 @@ class TestAPIReader(TestCase):
         self.assertEqual(resp.status_code, 400)
         resp_json = resp.json()
         self.assertFalse(resp_json['success'])
-        self.assertEqual('Invalid aggregate function Mix', resp_json['message'])
+        self.assertEqual('Invalid aggregate function Mix',
+                         resp_json['message'])
 
     @override_settings(BRIDGEQL_AUTHENTICATION_DECORATOR='server.auth.localtest')
     def test_custom_auth_decorator(self):
