@@ -21,6 +21,7 @@ class TestAPIWriter(TestCase):
     # Test to create a successful machine model
     def test_create_machine(self):
         url = reverse('bridgeql_django_create', kwargs={
+            'db_name': 'default',
             'app_label': 'machine',
             'model_name': 'Machine',
         })
@@ -37,11 +38,12 @@ class TestAPIWriter(TestCase):
             url, json.dumps({"payload": params}),
             content_type='application/json'
         )
-        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.status_code, 201)
 
     # Validation error since NOT NULL fields are not passed
     def test_create_machine_missing_fields(self):
         url = reverse('bridgeql_django_create', kwargs={
+            'db_name': 'default',
             'app_label': 'machine',
             'model_name': 'Machine',
         })
@@ -57,6 +59,7 @@ class TestAPIWriter(TestCase):
     def test_update_machine(self):
         machine_object_pk = 10
         url = reverse('bridgeql_django_update', kwargs={
+            'db_name': 'default',
             'app_label': 'machine',
             'model_name': 'Machine',
             'pk': machine_object_pk
@@ -84,6 +87,7 @@ class TestAPIWriter(TestCase):
 
     def test_update_machine_invalid_pk(self):
         url = reverse('bridgeql_django_update', kwargs={
+            'db_name': 'default',
             'app_label': 'machine',
             'model_name': 'Machine',
             'pk': 'invalid'
@@ -99,6 +103,7 @@ class TestAPIWriter(TestCase):
 
     def test_update_machine_field_not_exist(self):
         url = reverse('bridgeql_django_update', kwargs={
+            'db_name': 'default',
             'app_label': 'machine',
             'model_name': 'Machine',
             'pk': 10
@@ -116,6 +121,7 @@ class TestAPIWriter(TestCase):
     def test_update_non_existent_machine(self):
         machine_object_pk = 101
         url = reverse('bridgeql_django_update', kwargs={
+            'db_name': 'default',
             'app_label': 'machine',
             'model_name': 'Machine',
             'pk': machine_object_pk
@@ -134,6 +140,7 @@ class TestAPIWriter(TestCase):
     def test_update_readonly_fields(self):
         machine_object_pk = 11
         url = reverse('bridgeql_django_update', kwargs={
+            'db_name': 'default',
             'app_label': 'machine',
             'model_name': 'Machine',
             'pk': machine_object_pk
@@ -148,3 +155,36 @@ class TestAPIWriter(TestCase):
         self.assertEqual(resp.status_code, 400)
         self.assertEqual(resp.json()['message'], 'can\'t set attribute')
         self.assertFalse(resp.json()['success'])
+
+    def test_delete_model_object(self):
+        url = reverse('bridgeql_django_delete', kwargs={
+            'db_name': 'default',
+            'app_label': 'machine',
+            'model_name': 'Machine',
+            'pk': 1
+        })
+        resp = self.client.delete(url)
+        self.assertEqual(resp.status_code, 200)
+        params2 = {
+            'app_name': 'machine',
+            'model_name': 'Machine',
+            'filter': {
+                'pk': 1,
+            },
+            'fields': ['ip', 'name']
+        }
+        url = reverse('bridgeql_django_read')
+        resp = self.client.get(url, {"payload": json.dumps(params2)})
+        self.assertListEqual([], resp.json()['data'])
+
+    def test_invalid_write_connection(self):
+        url = reverse('bridgeql_django_delete', kwargs={
+            'db_name': 'invalid',
+            'app_label': 'machine',
+            'model_name': 'Machine',
+            'pk': 1
+        })
+        resp = self.client.delete(url)
+        self.assertEqual(resp.status_code, 400)
+        self.assertEqual("The connection 'invalid' doesn't exist.",
+                         resp.json()['message'])

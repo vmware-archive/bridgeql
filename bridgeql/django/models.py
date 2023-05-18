@@ -12,6 +12,7 @@ from django.core.exceptions import (
 from django.db.models import QuerySet, aggregates
 from django.db.models.base import ModelBase
 from django.db.utils import IntegrityError
+from django.utils.connection import ConnectionDoesNotExist
 
 from bridgeql.django import logger
 from bridgeql.django.exceptions import (
@@ -147,15 +148,12 @@ class ModelConfig(object):
 
 
 class ModelObject(object):
-    def __init__(self, app_label, model_name, **kwargs):
+    def __init__(self, app_label, model_name, db_name, pk=None):
+        self.db_name = db_name
         self.model_config = ModelConfig(app_label, model_name)
         self.instance = None
-        self.db_name = kwargs.pop('bridgeql_writer_db', None)
-        pk = kwargs.pop('pk', None)
         if pk:
-            obj_manager = self.model_config.model.objects
-            if self.db_name:
-                obj_manager = obj_manager.using(self.db_name)
+            obj_manager = self.model_config.model.objects.using(self.db_name)
             # throw error if more than one value found
             try:
                 self.instance = obj_manager.get(pk=pk)
@@ -163,6 +161,8 @@ class ModelObject(object):
                 raise InvalidPKException(str(e))
             except ObjectDoesNotExist as e:
                 raise ObjectNotFound(str(e))
+            except ConnectionDoesNotExist as e:
+                raise InvalidRequest(str(e))
 
     def update(self, params):
         # TODO check if there are any restricted fields in data
@@ -184,10 +184,8 @@ class ModelObject(object):
 
     def create(self, params):
         # TODO validate data
-        save_kwargs = {}
+        save_kwargs = {'using': self.db_name}
         # if db_name is None then save() function will use default db
-        if self.db_name:
-            save_kwargs['using'] = self.db_name
         self.instance = self.model_config.model(**params)
         # Perform validation
         try:
@@ -196,6 +194,9 @@ class ModelObject(object):
         except (ValidationError, IntegrityError) as e:
             raise InvalidRequest(str(e))
         return self.instance
+
+    def delete(self):
+        return self.instance.delete()
 
 
 class ModelBuilder(object):
