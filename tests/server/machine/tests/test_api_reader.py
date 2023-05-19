@@ -145,7 +145,6 @@ class TestAPIReader(TestCase):
             self.getURL(), {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
         res_json = resp.json()
-        # self.assertEqual(10, res_json['data'])
         self.assertEqual(10, len(res_json['data']))
 
     def test_count_query(self):
