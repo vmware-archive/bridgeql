@@ -56,11 +56,12 @@ class TestAPIReader(TestCase):
         assert _checkListEqual(
             list(resp_json['data'][0].keys()), self.params['fields'])
 
-    def test_get_machine_by_pk(self):
-        resp = self.client.get(self.getURL(pk=1))
+    def test_get_os_by_pk(self):
+        resp = self.client.get(self.getURL(pk=1, model_name='OperatingSystem'))
         self.assertEqual(resp.status_code, 200)
         resp_json = resp.json()
         self.assertEqual(resp_json['data'][0]['id'], 1)
+        self.assertNotIn('license_key', resp_json['data'][0])
 
     def test_get_os(self):
         self.params = {
@@ -144,6 +145,7 @@ class TestAPIReader(TestCase):
             self.getURL(), {'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 200)
         res_json = resp.json()
+        # self.assertEqual(10, res_json['data'])
         self.assertEqual(10, len(res_json['data']))
 
     def test_count_query(self):
