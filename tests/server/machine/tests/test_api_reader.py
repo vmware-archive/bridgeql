@@ -24,11 +24,17 @@ class TestAPIReader(TestCase):
         app_label = kwargs.get('app_label', 'machine')
         # default model name is Machine
         model_name = kwargs.get('model_name', 'Machine')
-        return url_reverse('bridgeql_django_read', kwargs={
+        pk = kwargs.get('pk')
+        url_name = 'bridgeql_django_read'
+        url_kwargs = {
             'db_name': db_name,
             'app_label': app_label,
             'model_name': model_name
-        })
+        }
+        if pk:
+            url_name = 'bridgeql_django_read_pk'
+            url_kwargs['pk'] = pk
+        return url_reverse(url_name, kwargs=url_kwargs)
 
     def test_get_machine(self):
         self.params = {
@@ -49,6 +55,12 @@ class TestAPIReader(TestCase):
 
         assert _checkListEqual(
             list(resp_json['data'][0].keys()), self.params['fields'])
+
+    def test_get_machine_by_pk(self):
+        resp = self.client.get(self.getURL(pk=1))
+        self.assertEqual(resp.status_code, 200)
+        resp_json = resp.json()
+        self.assertEqual(resp_json['data'][0]['id'], 1)
 
     def test_get_os(self):
         self.params = {

@@ -35,10 +35,17 @@ def create_django_model(request, db_name, app_label, model_name):
 
 @require_http_methods(['GET'])
 @read_auth_decorator
-def read_django_model(request, db_name, app_label, model_name):
-    params = request.GET.get('payload', None)
+def read_django_model(request, db_name, app_label, model_name, pk=None):
     try:
-        params = json.loads(params)
+        if pk:
+            params = {
+                'filter': {
+                    'pk': pk
+                }
+            }
+        else:
+            params = request.GET.get('payload', None)
+            params = json.loads(params)
         mb = ModelBuilder(db_name, app_label, model_name, params)
         qset = mb.queryset()  # get the result based on the given parameters
         res = {'data': qset, 'message': '', 'success': True}
