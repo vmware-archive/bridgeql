@@ -12,7 +12,10 @@ from django.core.exceptions import (
 from django.db.models import QuerySet, aggregates
 from django.db.models.base import ModelBase
 from django.db.utils import IntegrityError
-from django.utils.connection import ConnectionDoesNotExist
+try:
+    from django.utils.connection import ConnectionDoesNotExist
+except ImportError:
+    from django.db.utils import ConnectionDoesNotExist
 
 from bridgeql.django import logger
 from bridgeql.django.exceptions import (

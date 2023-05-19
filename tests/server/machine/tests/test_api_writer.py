@@ -194,5 +194,5 @@ class TestAPIWriter(TestCase):
         })
         resp = self.client.delete(url)
         self.assertEqual(resp.status_code, 400)
-        self.assertEqual("The connection 'invalid' doesn't exist.",
-                         resp.json()['message'])
+        self.assertRegex(resp.json()['message'],
+                         r"The connection (')?invalid(')? doesn't exist(.)?")
