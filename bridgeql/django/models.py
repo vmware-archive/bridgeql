@@ -238,10 +238,11 @@ class ModelBuilder(object):
             # offset and limit operation will return None
             func = getattr(self.qset, qset_opt, None)
             value = getattr(self.params, opt, None)
-            # do not execute operation if value is not passed,
+            # do not execute operation (except values)
+            # if value is not passed,
             # or it does not have default value specified in
             # Parameters class such as [], {}, False
-            if value is None:
+            if not value and qset_opt != 'values':
                 continue
             if not isinstance(value, opt_type):
                 raise InvalidQueryException('Invalid type %s for %s'
@@ -272,6 +273,11 @@ class ModelBuilder(object):
                     # returns DBRows instance
                     self.qset = self._add_fields()
                 else:
+                    # in case if fields is not present in the query
+                    # return all fields but restricted
+                    if not value:
+                        value = list(
+                            self.model_config.fields - self.model_config.restricted_fields)
                     try:
                         self.qset = func(*value)
                     except FieldError as e:
