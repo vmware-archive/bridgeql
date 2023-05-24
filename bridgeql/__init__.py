@@ -14,7 +14,7 @@
 """
 
 __title__ = 'BridgeQL'
-__version__ = '0.2.1'
+__version__ = '0.2.2'
 __license__ = 'BSD 2-Clause'
 __copyright__ = 'Copyright © 2023 VMware, Inc.  All rights reserved.'
 

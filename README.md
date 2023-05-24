@@ -60,32 +60,40 @@ urlpatterns = [
 ]
 ...
 ```
-This way your app will be ready to serve the REST API to expose model query, you can request an API like follows:
+This way your app will be ready to serve the REST API to expose model query, you can request the API
+to perform basic CRUD operations using one of the following URLs
+- Create: `create/db_name/app_name/model_name`
+- Read: `read/db_name/app_name/model_name/<?pk>`
+- Update: `update/db_name/app_name/model_name/pk`
+- Delete: `delete/db_name/app_name/model_name/pk`
+
+Example Usage:
+
 ```python
-    params = {
-       'db_name': 'db1',
-       'app_name': 'machine', # required
-       'model_name': 'Machine', # required
-       'filter': {
-           'os__name': 'os-name-1'
-        },
-        'fields': ['ip', 'name', 'id'],
-        'exclude': {
-           'name': 'machine-name-11'
-        },
-        'order_by': ['ip'],
-        'limit': 5,
-        'offset': 10, # default 0
-    }
-    api_url = '<yoursite.com>/api/bridgeql/dj_read'
-    resp = make_get_api_call(api_url, {'payload': json.dumps(params)})
-    result = resp.json()
+import requests
+
+params = {
+    'filter': {
+        'os__name': 'os-name-1'
+    },
+    'fields': ['ip', 'name', 'id'],
+    'exclude': {
+        'name': 'machine-name-11'
+    },
+    'order_by': ['ip'],
+    'limit': 5,
+    'offset': 10,  # default 0
+}
+# db_name could be default
+api_url = '<yoursite.com>/api/bridgeql/read/default/machine/Machine'
+resp = requests.get(api_url, {'payload': json.dumps(params)})
+result = resp.json()
 ```
 
 The above parameters will translate into running the model query for `Machine` model of `machine` django app.
 
 ```python
-Machine.objects.using('db1')
+Machine.objects.using('default')
                 .filter(os__name = 'os-name-1')
                 .exclude(name = 'machine-name-11')
                 .values(['ip', 'name', 'id'])
