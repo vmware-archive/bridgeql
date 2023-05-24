@@ -180,8 +180,8 @@ class ModelObject(object):
             # Perform validation
             self.instance.validate_unique()
             self.instance.save()
-        except (ValidationError, IntegrityError,
-                AttributeError, ValueError) as e:
+        except (AttributeError, IntegrityError,
+                ValidationError, ValueError) as e:
             raise InvalidRequest(str(e))
         return self.instance
 
@@ -194,7 +194,7 @@ class ModelObject(object):
         try:
             self.instance.validate_unique()
             self.instance.save(**save_kwargs)
-        except (ValidationError, IntegrityError, ValueError) as e:
+        except (IntegrityError, ValidationError, ValueError) as e:
             raise InvalidRequest(str(e))
         return self.instance
 
