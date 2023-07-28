@@ -4,5 +4,5 @@
 
 autopep8
 coverage
-django==3.2.19
+django==3.2.20
 tox
