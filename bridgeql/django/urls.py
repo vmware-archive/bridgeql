@@ -24,5 +24,5 @@ urlpatterns = [
     url(r'^delete/(?P<db_name>\w+)/(?P<app_label>\w+)/(?P<model_name>\w+)/(?P<pk>\w+)/$',
          bridge.delete_django_model, name='bridgeql_django_delete'),
     url(r'^schema/$', generate_bridgeql_schema, name='generate_bridgeql_schema'),
-    url(r'^/', index, name='bridgeql_django_index'),
+    url(r'', index, name='bridgeql_django_index'),
 ]
