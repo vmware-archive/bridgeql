@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 # Copyright © 2023 VMware, Inc.  All rights reserved.
 # SPDX-License-Identifier: BSD-2-Clause
-
-from django.conf.urls import url
+try:
+    from django.urls import re_path as url
+except ImportError:
+    from django.conf.urls import url
 
 from bridgeql.django import bridge
 from bridgeql.django.settings import bridgeql_settings
