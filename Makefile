@@ -8,6 +8,7 @@ PY_VERSION := "python3.9"
 PY_BINARY := $(shell which $(PY_VERSION))
 VENV_DIR := $(PROJECT_ROOT)/venv
 PYTHONPATH := $(VENV_DIR)/lib/$(PY_VERSION)/site-packages
+COVERAGE := $(VENV_DIR)/bin/coverage
 
 default: install
 
@@ -16,7 +17,8 @@ test: install
 	@echo "--------------------------------------------------"
 	@source env.sh && \
 		cd $(PROJECT_ROOT)/tests/server && \
-		$(PY_BINARY) manage.py test -v2
+		$(COVERAGE) run --source="../../bridgeql" manage.py test -v2 && \
+		$(COVERAGE) report
 
 install: $(VENV_DIR)
 	@echo "\nInstalling all required packages"
