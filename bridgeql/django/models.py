@@ -319,6 +319,7 @@ class ModelBuilder(object):
     def yield_fields(self):
         logger.debug('Request parameters: %s \nQuery: %s\n',
                      self.params.params, self.qset.query)
+        self.qset = self.qset.select_related(*self.params.fk_refs_in_fields)
         for row in self.qset:
             model_fields = {}
             for field in self.params.fields:
