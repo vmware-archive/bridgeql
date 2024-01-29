@@ -233,7 +233,7 @@ class ModelBuilder(object):
         requested_fields.extend(self.params.order_by)
         self.model_config.validate_fields(set(requested_fields))
 
-    def _apply_opts(self):
+    def _apply_opts(self, stream=False):
         for opt, qset_opt, opt_type in ModelBuilder._QUERYSET_OPTS:
             # offset and limit operation will return None
             func = getattr(self.qset, qset_opt, None)
@@ -269,7 +269,10 @@ class ModelBuilder(object):
                 self.qset = self.qset[:self.params.limit]
             elif isinstance(value, list):
                 # handle values case where property is passed in fields
-                if qset_opt == 'values' and self.query_has_properties():
+                if qset_opt == 'values' and stream:
+                    logger.debug("###########")
+                    return self.yield_fields()
+                elif qset_opt == 'values' and self.query_has_properties():
                     # returns DBRows instance
                     self.qset = self._add_fields()
                 else:
@@ -313,7 +316,25 @@ class ModelBuilder(object):
             qset_values.append(model_fields)
         return qset_values
 
-    def queryset(self):
+    def yield_fields(self):
+        logger.debug('Request parameters: %s \nQuery: %s\n',
+                     self.params.params, self.qset.query)
+        for row in self.qset:
+            model_fields = {}
+            for field in self.params.fields:
+                attr = row
+                for ref in field.split('__'):
+                    try:
+                        attr = getattr(attr, ref)
+                        if attr is None:
+                            break
+                    except AttributeError:
+                        raise InvalidModelFieldName(
+                            'Invalid query for field %s in %s.' % (ref, attr))
+                model_fields[field] = attr
+            yield model_fields
+
+    def queryset(self, stream=False):
         # construct Q object from dictionary
         query = Query(self.params.filter)
         if self.params.db_name:
@@ -321,6 +342,8 @@ class ModelBuilder(object):
                 self.params.db_name).filter(query.Q)
         else:
             self.qset = self.model_config.model.objects.filter(query.Q)
+        if stream:
+            return self._apply_opts(stream=stream)
         self._apply_opts()
         if isinstance(self.qset, QuerySet):
             logger.debug('Request parameters: %s \nQuery: %s\n',
