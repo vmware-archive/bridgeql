@@ -294,24 +294,28 @@ class ModelBuilder(object):
         return bool(set(self.params.fields).intersection(
             self.model_config.get_properties()))
 
+    def _get_model_fields(self, row):
+        model_fields = {}
+        for field in self.params.fields:
+            attr = row
+            for ref in field.split('__'):
+                try:
+                    attr = getattr(attr, ref)
+                    if attr is None:
+                        break
+                except AttributeError:
+                    raise InvalidModelFieldName(
+                        'Invalid query for field %s in %s.' % (ref, attr))
+            model_fields[field] = attr
+        return model_fields
+
     def _add_fields(self):
         qset_values = DBRows()
         self.qset = self.qset.select_related(*self.params.fk_refs_in_fields)
         logger.debug('Request parameters: %s \nQuery: %s\n',
                      self.params.params, self.qset.query)
         for row in self.qset:
-            model_fields = {}
-            for field in self.params.fields:
-                attr = row
-                for ref in field.split('__'):
-                    try:
-                        attr = getattr(attr, ref)
-                        if attr is None:
-                            break
-                    except AttributeError:
-                        raise InvalidModelFieldName(
-                            'Invalid query for field %s in %s.' % (ref, attr))
-                model_fields[field] = attr
+            model_fields = self._get_model_fields(row)
             qset_values.append(model_fields)
         return qset_values
 
@@ -320,18 +324,7 @@ class ModelBuilder(object):
                      self.params.params, self.qset.query)
         self.qset = self.qset.select_related(*self.params.fk_refs_in_fields)
         for row in self.qset:
-            model_fields = {}
-            for field in self.params.fields:
-                attr = row
-                for ref in field.split('__'):
-                    try:
-                        attr = getattr(attr, ref)
-                        if attr is None:
-                            break
-                    except AttributeError:
-                        raise InvalidModelFieldName(
-                            'Invalid query for field %s in %s.' % (ref, attr))
-                model_fields[field] = attr
+            model_fields = self._get_model_fields(row)
             yield model_fields
 
     def queryset(self, stream=False):
