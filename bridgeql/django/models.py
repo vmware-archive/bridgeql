@@ -270,7 +270,6 @@ class ModelBuilder(object):
             elif isinstance(value, list):
                 # handle values case where property is passed in fields
                 if qset_opt == 'values' and stream:
-                    logger.debug("###########")
                     return self.yield_fields()
                 elif qset_opt == 'values' and self.query_has_properties():
                     # returns DBRows instance
