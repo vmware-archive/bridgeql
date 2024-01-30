@@ -41,7 +41,7 @@ class TestAPIStreamer(TestCase):
             'fields': ['os__name', 'pk']
         }
         resp = self.client.get(
-            self.getURL(), {'payload': json.dumps(self.params), 'chunk_size':50})
+            self.getURL(), {'payload': json.dumps(self.params)})
         if resp.status_code == 200:
             streaming_content = []
             for chunk in resp.streaming_content:

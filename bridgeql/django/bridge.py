@@ -41,23 +41,16 @@ def create_django_model(request, db_name, app_label, model_name):
 @method_decorator(require_http_methods(['GET']), name='dispatch')
 class StreamView(View):
 
-    def stream_response(self, mb, chunk_size):
+    def stream_response(self, mb):
         for i, x in enumerate(mb.queryset(stream=True)):
             yield x
-            if i % chunk_size == 0:
-                time.sleep(1)
 
     def get(self, request, db_name, app_label, model_name):
-        chunk_size = request.GET.get('chunk_size', 1000)
-        try:
-            chunk_size = int(chunk_size)
-        except ValueError:
-            chunk_size = 1000
         params = request.GET.get('payload', None)
         try:
             params = json.loads(params)
             mb = ModelBuilder(db_name, app_label, model_name, params)
-            return StreamingHttpResponse(self.stream_response(mb, chunk_size), content_type='application/json')
+            return StreamingHttpResponse(self.stream_response(mb), content_type='application/json')
         except BridgeqlException as e:
             e.log()
             res = {'data': [], 'message': str(e.detail), 'success': False}
