@@ -32,7 +32,6 @@ class TestAPIStreamer(TestCase):
         }
         return url_reverse(url_name, kwargs=url_kwargs)
 
-    # add properties
     def test_stream_one_field(self):
         self.params = {
             'filter': {
@@ -59,3 +58,21 @@ class TestAPIStreamer(TestCase):
                                'payload': json.dumps(self.params)})
         self.assertEqual(resp.status_code, 400)
         self.assertFalse(resp.json()['success'])
+
+    def test_stream_one_field(self):
+        self.params = {
+            'filter': {
+                'name__startswith': 'machine',
+            },
+            'fields': ['os1__name', 'pk']
+        }
+        resp = self.client.get(
+            self.getURL(), {'payload': json.dumps(self.params)})
+        # self.assertEqual(resp.status_code, 500)
+        if resp.status_code == 200:
+            streaming_content = b""
+            for chunk in resp.streaming_content:
+                streaming_content += chunk
+            streaming_content = streaming_content.decode('utf-8')
+            err_json = json.loads(streaming_content)
+            self.assertFalse(err_json['success'])

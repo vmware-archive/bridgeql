@@ -13,7 +13,7 @@ from django.views import View
 
 from bridgeql.django.auth import read_auth_decorator, write_auth_decorator
 from bridgeql.django.exceptions import BridgeqlException
-from bridgeql.django.helpers import JSONResponse, get_json_request_body
+from bridgeql.django.helpers import JSONResponse, JSONEncoder, get_json_request_body
 from bridgeql.django.models import ModelBuilder, ModelObject
 from bridgeql.django.query import Query
 
@@ -40,10 +40,14 @@ def create_django_model(request, db_name, app_label, model_name):
 
 @method_decorator(require_http_methods(['GET']), name='dispatch')
 class StreamView(View):
-
+    STREAM_SEPERATOR = '$$'
     def stream_response(self, mb):
-        for i, x in enumerate(mb.queryset(stream=True)):
-            yield x
+        try:
+            for x in mb.queryset(stream=True):
+                yield "%s%s" % (json.dumps(x, cls=JSONEncoder), self.STREAM_SEPERATOR)
+        except BridgeqlException as e:
+            e.log()
+            yield json.dumps({'message': str(e.detail), 'error': True})
 
     def get(self, request, db_name, app_label, model_name):
         params = request.GET.get('payload', None)
@@ -55,6 +59,7 @@ class StreamView(View):
             e.log()
             res = {'data': [], 'message': str(e.detail), 'success': False}
             return JSONResponse(res, status=e.status_code)
+
 
 @require_http_methods(['GET'])
 @read_auth_decorator

@@ -314,18 +314,24 @@ class ModelBuilder(object):
         self.qset = self.qset.select_related(*self.params.fk_refs_in_fields)
         logger.debug('Request parameters: %s \nQuery: %s\n',
                      self.params.params, self.qset.query)
-        for row in self.qset:
-            model_fields = self._get_model_fields(row)
-            qset_values.append(model_fields)
-        return qset_values
+        try:
+            for row in self.qset.iterator():
+                model_fields = self._get_model_fields(row)
+                qset_values.append(model_fields)
+            return qset_values
+        except FieldError as e:
+            raise InvalidModelFieldName(str(e))
 
     def yield_fields(self):
         logger.debug('Request parameters: %s \nQuery: %s\n',
                      self.params.params, self.qset.query)
         self.qset = self.qset.select_related(*self.params.fk_refs_in_fields)
-        for row in self.qset:
-            model_fields = self._get_model_fields(row)
-            yield model_fields
+        try:
+            for row in self.qset.iterator():
+                model_fields = self._get_model_fields(row)
+                yield model_fields
+        except FieldError as e:
+            raise InvalidModelFieldName(str(e))
 
     def queryset(self, stream=False):
         # construct Q object from dictionary
