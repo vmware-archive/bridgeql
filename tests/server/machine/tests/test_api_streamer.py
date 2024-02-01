@@ -24,7 +24,7 @@ class TestAPIStreamer(TestCase):
         app_label = kwargs.get('app_label', 'machine')
         # default model name is Machine
         model_name = kwargs.get('model_name', 'Machine')
-        url_name = 'bridgeql_django_stream'
+        url_name = 'bridgeql_django_read'
         url_kwargs = {
             'db_name': db_name,
             'app_label': app_label,
@@ -40,7 +40,7 @@ class TestAPIStreamer(TestCase):
             'fields': ['os__name', 'pk']
         }
         resp = self.client.get(
-            self.getURL(), {'payload': json.dumps(self.params)})
+            self.getURL(), {'payload': json.dumps(self.params), 'stream': True})
         if resp.status_code == 200:
             streaming_content = []
             for chunk in resp.streaming_content:
@@ -55,11 +55,11 @@ class TestAPIStreamer(TestCase):
             'fields': ['name', 'arch'],
         }
         resp = self.client.get(self.getURL(model_name='InvalidModel'), {
-                               'payload': json.dumps(self.params)})
+                               'payload': json.dumps(self.params), 'stream': True})
         self.assertEqual(resp.status_code, 400)
         self.assertFalse(resp.json()['success'])
 
-    def test_stream_one_field(self):
+    def test_stream_invalid_field(self):
         self.params = {
             'filter': {
                 'name__startswith': 'machine',
@@ -67,12 +67,11 @@ class TestAPIStreamer(TestCase):
             'fields': ['os1__name', 'pk']
         }
         resp = self.client.get(
-            self.getURL(), {'payload': json.dumps(self.params)})
-        # self.assertEqual(resp.status_code, 500)
+            self.getURL(), {'payload': json.dumps(self.params), 'stream': True})
         if resp.status_code == 200:
             streaming_content = b""
             for chunk in resp.streaming_content:
                 streaming_content += chunk
             streaming_content = streaming_content.decode('utf-8')
             err_json = json.loads(streaming_content)
-            self.assertFalse(err_json['success'])
+            self.assertTrue(err_json['error'])

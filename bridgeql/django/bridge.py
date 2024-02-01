@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 import json
-import time
 
 from django.http import StreamingHttpResponse
 from django.utils.decorators import method_decorator
@@ -39,22 +38,34 @@ def create_django_model(request, db_name, app_label, model_name):
 
 
 @method_decorator(require_http_methods(['GET']), name='dispatch')
-class StreamView(View):
-    STREAM_SEPERATOR = '$$'
-    def stream_response(self, mb):
+class ReadView(View):
+    STREAM_SEPERATOR = ','
+    def stream_response(self, qset_stream):
         try:
-            for x in mb.queryset(stream=True):
+            for x in qset_stream:
                 yield "%s%s" % (json.dumps(x, cls=JSONEncoder), self.STREAM_SEPERATOR)
         except BridgeqlException as e:
             e.log()
             yield json.dumps({'message': str(e.detail), 'error': True})
 
-    def get(self, request, db_name, app_label, model_name):
+    def get(self, request, db_name, app_label, model_name, pk=None):
         params = request.GET.get('payload', None)
+        stream = request.GET.get('stream', False)
         try:
-            params = json.loads(params)
+            if pk:
+                params = {
+                    'filter': {
+                        'pk': pk
+                    }
+                }
+            else:
+                params = json.loads(params)
             mb = ModelBuilder(db_name, app_label, model_name, params)
-            return StreamingHttpResponse(self.stream_response(mb), content_type='application/json')
+            qset = mb.queryset(stream=stream)
+            if not stream:
+                res = {'data': qset, 'message': '', 'success': True}
+                return JSONResponse(res)
+            return StreamingHttpResponse(self.stream_response(qset), content_type='application/json')
         except BridgeqlException as e:
             e.log()
             res = {'data': [], 'message': str(e.detail), 'success': False}

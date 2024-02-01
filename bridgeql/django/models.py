@@ -232,6 +232,7 @@ class ModelBuilder(object):
         requested_fields.extend(self.params.fields)
         requested_fields.extend(self.params.order_by)
         self.model_config.validate_fields(set(requested_fields))
+        self.qset_stream = None
 
     def _apply_opts(self, stream=False):
         for opt, qset_opt, opt_type in ModelBuilder._QUERYSET_OPTS:
@@ -270,7 +271,7 @@ class ModelBuilder(object):
             elif isinstance(value, list):
                 # handle values case where property is passed in fields
                 if qset_opt == 'values' and stream:
-                    return self.yield_fields()
+                    self.qset_stream = self.yield_fields()
                 elif qset_opt == 'values' and self.query_has_properties():
                     # returns DBRows instance
                     self.qset = self._add_fields()
@@ -341,9 +342,9 @@ class ModelBuilder(object):
                 self.params.db_name).filter(query.Q)
         else:
             self.qset = self.model_config.model.objects.filter(query.Q)
-        if stream:
-            return self._apply_opts(stream=stream)
-        self._apply_opts()
+        self._apply_opts(stream=stream)
+        if self.qset_stream:
+            return self.qset_stream
         if isinstance(self.qset, QuerySet):
             logger.debug('Request parameters: %s \nQuery: %s\n',
                          self.params.params, self.qset.query)
