@@ -232,8 +232,9 @@ class ModelBuilder(object):
         requested_fields.extend(self.params.fields)
         requested_fields.extend(self.params.order_by)
         self.model_config.validate_fields(set(requested_fields))
+        self.qset_stream = None
 
-    def _apply_opts(self):
+    def _apply_opts(self, stream=False):
         for opt, qset_opt, opt_type in ModelBuilder._QUERYSET_OPTS:
             # offset and limit operation will return None
             func = getattr(self.qset, qset_opt, None)
@@ -269,7 +270,9 @@ class ModelBuilder(object):
                 self.qset = self.qset[:self.params.limit]
             elif isinstance(value, list):
                 # handle values case where property is passed in fields
-                if qset_opt == 'values' and self.query_has_properties():
+                if qset_opt == 'values' and stream:
+                    self.qset_stream = self.yield_fields()
+                elif qset_opt == 'values' and self.query_has_properties():
                     # returns DBRows instance
                     self.qset = self._add_fields()
                 else:
@@ -292,28 +295,46 @@ class ModelBuilder(object):
         return bool(set(self.params.fields).intersection(
             self.model_config.get_properties()))
 
+    def _get_model_fields(self, row):
+        model_fields = {}
+        for field in self.params.fields:
+            attr = row
+            for ref in field.split('__'):
+                try:
+                    attr = getattr(attr, ref)
+                    if attr is None:
+                        break
+                except AttributeError:
+                    raise InvalidModelFieldName(
+                        'Invalid query for field %s in %s.' % (ref, attr))
+            model_fields[field] = attr
+        return model_fields
+
     def _add_fields(self):
         qset_values = DBRows()
         self.qset = self.qset.select_related(*self.params.fk_refs_in_fields)
         logger.debug('Request parameters: %s \nQuery: %s\n',
                      self.params.params, self.qset.query)
-        for row in self.qset:
-            model_fields = {}
-            for field in self.params.fields:
-                attr = row
-                for ref in field.split('__'):
-                    try:
-                        attr = getattr(attr, ref)
-                        if attr is None:
-                            break
-                    except AttributeError:
-                        raise InvalidModelFieldName(
-                            'Invalid query for field %s in %s.' % (ref, attr))
-                model_fields[field] = attr
-            qset_values.append(model_fields)
-        return qset_values
+        try:
+            for row in self.qset.iterator():
+                model_fields = self._get_model_fields(row)
+                qset_values.append(model_fields)
+            return qset_values
+        except FieldError as e:
+            raise InvalidModelFieldName(str(e))
 
-    def queryset(self):
+    def yield_fields(self):
+        logger.debug('Request parameters: %s \nQuery: %s\n',
+                     self.params.params, self.qset.query)
+        self.qset = self.qset.select_related(*self.params.fk_refs_in_fields)
+        try:
+            for row in self.qset.iterator():
+                model_fields = self._get_model_fields(row)
+                yield model_fields
+        except FieldError as e:
+            raise InvalidModelFieldName(str(e))
+
+    def queryset(self, stream=False):
         # construct Q object from dictionary
         query = Query(self.params.filter)
         if self.params.db_name:
@@ -321,7 +342,9 @@ class ModelBuilder(object):
                 self.params.db_name).filter(query.Q)
         else:
             self.qset = self.model_config.model.objects.filter(query.Q)
-        self._apply_opts()
+        self._apply_opts(stream=stream)
+        if self.qset_stream:
+            return self.qset_stream
         if isinstance(self.qset, QuerySet):
             logger.debug('Request parameters: %s \nQuery: %s\n',
                          self.params.params, self.qset.query)

@@ -14,15 +14,15 @@ bridgeql_settings.validate()
 
 urlpatterns = [
     url(r'^create/(?P<db_name>\w+)/(?P<app_label>\w+)/(?P<model_name>\w+)/$',
-         bridge.create_django_model, name='bridgeql_django_create'),
+        bridge.create_django_model, name='bridgeql_django_create'),
     url(r'^read/(?P<db_name>\w+)/(?P<app_label>\w+)/(?P<model_name>\w+)/(?P<pk>\w+)/$',
-         bridge.read_django_model, name='bridgeql_django_read_pk'),
+        bridge.ReadView.as_view(), name='bridgeql_django_read_pk'),
     url(r'^read/(?P<db_name>\w+)/(?P<app_label>\w+)/(?P<model_name>\w+)/$',
-         bridge.read_django_model, name='bridgeql_django_read'),
+        bridge.ReadView.as_view(), name='bridgeql_django_read'),
     url(r'^update/(?P<db_name>\w+)/(?P<app_label>\w+)/(?P<model_name>\w+)/(?P<pk>\w+)/$',
-         bridge.update_django_model, name='bridgeql_django_update'),
+        bridge.update_django_model, name='bridgeql_django_update'),
     url(r'^delete/(?P<db_name>\w+)/(?P<app_label>\w+)/(?P<model_name>\w+)/(?P<pk>\w+)/$',
-         bridge.delete_django_model, name='bridgeql_django_delete'),
+        bridge.delete_django_model, name='bridgeql_django_delete'),
     url(r'^schema/$', generate_bridgeql_schema, name='generate_bridgeql_schema'),
     url(r'', index, name='bridgeql_django_index'),
 ]

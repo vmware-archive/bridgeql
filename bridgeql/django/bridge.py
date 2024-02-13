@@ -4,13 +4,17 @@
 
 import json
 
+from django.http import StreamingHttpResponse
+from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
+from django.views import View
 
 from bridgeql.django.auth import read_auth_decorator, write_auth_decorator
 from bridgeql.django.exceptions import BridgeqlException
-from bridgeql.django.helpers import JSONResponse, get_json_request_body
+from bridgeql.django.helpers import JSONResponse, JSONEncoder, get_json_request_body
 from bridgeql.django.models import ModelBuilder, ModelObject
+from bridgeql.django.query import Query
 
 
 @csrf_exempt
@@ -31,6 +35,41 @@ def create_django_model(request, db_name, app_label, model_name):
         e.log()
         res = {'data': [], 'message': str(e.detail), 'success': False}
         return JSONResponse(res, status=e.status_code)
+
+
+@method_decorator(require_http_methods(['GET']), name='dispatch')
+class ReadView(View):
+    STREAM_SEPERATOR = ','
+    def stream_response(self, qset_stream):
+        try:
+            for x in qset_stream:
+                yield "%s%s" % (json.dumps(x, cls=JSONEncoder), self.STREAM_SEPERATOR)
+        except BridgeqlException as e:
+            e.log()
+            yield json.dumps({'message': str(e.detail), 'error': True})
+
+    def get(self, request, db_name, app_label, model_name, pk=None):
+        params = request.GET.get('payload', None)
+        stream = request.GET.get('stream', False)
+        try:
+            if pk:
+                params = {
+                    'filter': {
+                        'pk': pk
+                    }
+                }
+            else:
+                params = json.loads(params)
+            mb = ModelBuilder(db_name, app_label, model_name, params)
+            qset = mb.queryset(stream=stream)
+            if not stream:
+                res = {'data': qset, 'message': '', 'success': True}
+                return JSONResponse(res)
+            return StreamingHttpResponse(self.stream_response(qset), content_type='application/json')
+        except BridgeqlException as e:
+            e.log()
+            res = {'data': [], 'message': str(e.detail), 'success': False}
+            return JSONResponse(res, status=e.status_code)
 
 
 @require_http_methods(['GET'])
